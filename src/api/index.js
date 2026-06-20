@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://old-money-algeria-backend.onrender.com/api/v1';
+let baseUrl = import.meta.env.VITE_API_URL || 'https://old-money-algeria-backend.onrender.com/api/v1';
+if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
+if (!baseUrl.endsWith('/api/v1')) baseUrl = `${baseUrl}/api/v1`;
+export const API_BASE_URL = baseUrl;
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
