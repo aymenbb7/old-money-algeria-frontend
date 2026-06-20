@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Truck, Clock } from 'lucide-react';
@@ -17,6 +17,7 @@ const Home = () => {
         const res = await fetchProducts({ status: 'PUBLISHED', is_new_arrival: 'True' });
         setProducts(res.results || []);
       } catch (err) {
+        console.error(err);
         setError(true);
       } finally {
         setLoading(false);

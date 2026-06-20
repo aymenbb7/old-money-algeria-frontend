@@ -1,4 +1,3 @@
-import React from 'react';
 import { AlertCircle } from 'lucide-react';
 
 const ErrorMessage = ({ message = "Une erreur est survenue lors du chargement des données. Veuillez réessayer." }) => {

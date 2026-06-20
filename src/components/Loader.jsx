@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 const Loader = ({ type = 'page' }) => {
   if (type === 'card') {

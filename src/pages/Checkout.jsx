@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchWilayas, submitOrder } from '../api';
 import { useCart } from '../context/CartContext';
@@ -31,7 +31,7 @@ const Checkout = () => {
       try {
         const res = await fetchWilayas();
         setWilayas(res.results || res || []);
-      } catch(err) {
+      } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
@@ -41,15 +41,14 @@ const Checkout = () => {
   }, [cartItems, navigate]);
 
   useEffect(() => {
-    if (formData.wilaya) {
-      const selected = wilayas.find(w => w.code === formData.wilaya);
-      if (selected) {
-        setDeliveryPrice(formData.delivery_type === 'HOME' ? parseFloat(selected.home_delivery_price) : parseFloat(selected.bureau_delivery_price));
-      }
-    } else {
-      setDeliveryPrice(0);
-    }
+    // Delivery price calculated dynamically below
   }, [formData.wilaya, formData.delivery_type, wilayas]);
+
+  // Calculate delivery price dynamically instead of effect
+  const selectedWilaya = wilayas.find(w => w.code === formData.wilaya);
+  const deliveryPrice = selectedWilaya 
+    ? (formData.delivery_type === 'HOME' ? parseFloat(selectedWilaya.home_delivery_price) : parseFloat(selectedWilaya.bureau_delivery_price))
+    : 0;
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -80,6 +79,7 @@ const Checkout = () => {
       clearCart();
       navigate(`/commande/${res.order_number}`);
     } catch (err) {
+      console.error(err);
       alert("Une erreur est survenue lors de la commande. Veuillez vérifier vos informations.");
       setSubmitting(false);
     }

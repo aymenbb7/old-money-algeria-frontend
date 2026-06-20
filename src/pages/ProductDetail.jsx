@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ShoppingBag, ChevronRight } from 'lucide-react';
 import { fetchProductBySlug, fetchProducts } from '../api';
@@ -41,6 +41,7 @@ const ProductDetail = () => {
           setRelated(relRes.results?.filter(p => p.id !== prod.id).slice(0, 4) || []);
         }
       } catch (err) {
+        console.error(err);
         setError(true);
       } finally {
         setLoading(false);

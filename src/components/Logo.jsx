@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 const Logo = ({ className = "h-10 w-10" }) => (
   <div className={`rounded-full bg-primary flex items-center justify-center border border-accent ${className}`}>

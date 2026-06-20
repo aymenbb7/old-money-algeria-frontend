@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, MessageCircle, Package, Truck, CheckCircle, Clock, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -21,12 +21,7 @@ const OrderTracking = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchSettings().then(setSettings).catch(console.error);
-    if (orderNumber) handleSearch();
-  }, []);
-
-  const handleSearch = async (e) => {
+  const handleSearch = useCallback(async (e) => {
     if (e) e.preventDefault();
     if (!orderNumber) return;
     
@@ -39,11 +34,17 @@ const OrderTracking = () => {
       const res = await trackOrder(orderNumber);
       setOrder(res);
     } catch (err) {
+      console.error(err);
       setError('Commande introuvable. Veuillez vérifier le numéro OMA-XXXX.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderNumber, setSearchParams]);
+
+  useEffect(() => {
+    fetchSettings().then(setSettings).catch(console.error);
+    if (orderNumber) handleSearch();
+  }, [handleSearch]);
 
   const getStatusIndex = (status) => {
     return STATUS_STAGES.findIndex(s => s.key === status);

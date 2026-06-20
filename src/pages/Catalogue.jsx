@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Filter } from 'lucide-react';
@@ -35,6 +35,7 @@ const Catalogue = () => {
         setProducts(prodRes.results || []);
         setCollections(colRes.results || []);
       } catch (err) {
+        console.error(err);
         setError(true);
       } finally {
         setLoading(false);

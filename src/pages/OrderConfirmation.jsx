@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { CheckCircle, MessageCircle } from 'lucide-react';
 import { trackOrder, fetchSettings } from '../api';
@@ -22,6 +22,7 @@ const OrderConfirmation = () => {
         setOrder(orderRes);
         setSettings(settingsRes);
       } catch (err) {
+        console.error(err);
         setError(true);
       } finally {
         setLoading(false);
