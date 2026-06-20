@@ -1,0 +1,52 @@
+import axios from 'axios';
+
+export const API_BASE_URL = 'https://old-money-algeria-backend.onrender.com/api/v1';
+
+export const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export const fetchProducts = async (params = {}) => {
+  const response = await apiClient.get('/products/', { params });
+  return response.data;
+};
+
+export const fetchProductBySlug = async (slug) => {
+  const response = await apiClient.get('/products/', { params: { search: slug } });
+  // Assuming search matches slug perfectly or API returns a list where [0] is the product
+  if (response.data.results && response.data.results.length > 0) {
+    return response.data.results.find(p => p.slug === slug) || response.data.results[0];
+  }
+  throw new Error("Product not found");
+};
+
+export const fetchCollections = async () => {
+  const response = await apiClient.get('/collections/');
+  return response.data;
+};
+
+export const fetchWilayas = async () => {
+  const response = await apiClient.get('/wilayas/');
+  return response.data;
+};
+
+export const submitOrder = async (orderData) => {
+  const response = await apiClient.post('/orders/checkout/', orderData);
+  return response.data;
+};
+
+export const trackOrder = async (orderNumber) => {
+  const response = await apiClient.get(`/orders/track/${orderNumber}/`);
+  return response.data;
+};
+
+export const fetchSettings = async () => {
+  const response = await apiClient.get('/store-settings/');
+  if (response.data.results && response.data.results.length > 0) {
+    return response.data.results[0];
+  }
+  return null;
+};
