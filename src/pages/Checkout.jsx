@@ -22,7 +22,6 @@ const Checkout = () => {
     coupon_code: ''
   });
 
-  const [deliveryPrice, setDeliveryPrice] = useState(0);
 
   useEffect(() => {
     if (cartItems.length === 0) navigate('/panier');

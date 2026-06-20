@@ -43,8 +43,10 @@ const OrderTracking = () => {
 
   useEffect(() => {
     fetchSettings().then(setSettings).catch(console.error);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (orderNumber) handleSearch();
-  }, [handleSearch]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const getStatusIndex = (status) => {
     return STATUS_STAGES.findIndex(s => s.key === status);
