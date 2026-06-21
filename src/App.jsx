@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 
 import Home from './pages/Home';
@@ -30,6 +30,7 @@ function App() {
               <Route path="/commander" element={<Checkout />} />
               <Route path="/commande/:orderNumber" element={<OrderConfirmation />} />
               <Route path="/suivi" element={<OrderTracking />} />
+              <Route path="/lookbook" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
           <Footer />
