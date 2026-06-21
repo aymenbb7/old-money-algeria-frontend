@@ -8,7 +8,7 @@ const BottomNav = () => {
 
   const navItems = [
     { path: '/', icon: Home, label: 'Accueil' },
-    { path: '/produits', icon: Search, label: 'Catalogue' },
+    { path: '/collections', icon: Search, label: 'Collections' },
     { path: '/panier', icon: ShoppingBag, label: 'Panier', badge: totalItems },
     { path: '/suivi', icon: Truck, label: 'Suivi' },
   ];

@@ -47,9 +47,17 @@ export const trackOrder = async (orderNumber) => {
 };
 
 export const fetchSettings = async () => {
-  const response = await apiClient.get('/store-settings/');
+  const response = await apiClient.get('/settings/');
   if (response.data.results && response.data.results.length > 0) {
     return response.data.results[0];
   }
   return null;
+};
+
+export const fetchHomepageBanners = async () => {
+  const response = await apiClient.get('/homepage/banners/');
+  if (response.data.results && response.data.results.length > 0) {
+    return response.data.results;
+  }
+  return [];
 };

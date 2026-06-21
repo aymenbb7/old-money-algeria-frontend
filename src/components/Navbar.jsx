@@ -25,7 +25,7 @@ const Navbar = () => {
         
         <div className="hidden md:flex items-center gap-8 font-semibold tracking-wide text-sm">
           <Link to="/" className={`hover:text-accent transition-colors ${location.pathname === '/' ? 'text-accent' : ''}`}>ACCUEIL</Link>
-          <Link to="/produits" className={`hover:text-accent transition-colors ${location.pathname.startsWith('/produits') ? 'text-accent' : ''}`}>CATALOGUE</Link>
+          <Link to="/collections" className={`hover:text-accent transition-colors ${location.pathname.startsWith('/collections') ? 'text-accent' : ''}`}>COLLECTIONS</Link>
           <Link to="/suivi" className={`hover:text-accent transition-colors ${location.pathname.startsWith('/suivi') ? 'text-accent' : ''}`}>SUIVI</Link>
         </div>
 

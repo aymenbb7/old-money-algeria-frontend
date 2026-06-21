@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 
 import Home from './pages/Home';
-import Catalogue from './pages/Catalogue';
+import Collections from './pages/Collections';
 import ProductDetail from './pages/ProductDetail';
 import CartPage from './pages/CartPage';
 import Checkout from './pages/Checkout';
@@ -24,8 +24,8 @@ function App() {
           <main className="flex-grow pt-16">
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/produits" element={<Catalogue />} />
-              <Route path="/produits/:slug" element={<ProductDetail />} />
+              <Route path="/collections" element={<Collections />} />
+              <Route path="/collections/:slug" element={<ProductDetail />} />
               <Route path="/panier" element={<CartPage />} />
               <Route path="/commander" element={<Checkout />} />
               <Route path="/commande/:orderNumber" element={<OrderConfirmation />} />

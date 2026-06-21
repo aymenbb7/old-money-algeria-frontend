@@ -2,20 +2,26 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Truck, Clock } from 'lucide-react';
-import { fetchProducts } from '../api';
+import { fetchProducts, fetchHomepageBanners } from '../api';
 import Loader from '../components/Loader';
 import ErrorMessage from '../components/ErrorMessage';
 
 const Home = () => {
   const [products, setProducts] = useState([]);
+  const [banners, setBanners] = useState([]);
+  const [currentBannerIdx, setCurrentBannerIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const res = await fetchProducts({ status: 'PUBLISHED', is_new_arrival: 'True' });
-        setProducts(res.results || []);
+        const [prodRes, bannerRes] = await Promise.all([
+          fetchProducts({ status: 'PUBLISHED', is_new_arrival: 'True' }),
+          fetchHomepageBanners().catch(() => [])
+        ]);
+        setProducts(prodRes.results || []);
+        setBanners(bannerRes || []);
       } catch (err) {
         console.error(err);
         setError(true);
@@ -26,41 +32,65 @@ const Home = () => {
     loadData();
   }, []);
 
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentBannerIdx(prev => (prev + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [banners]);
+
+  const banner = banners.length > 0 ? banners[currentBannerIdx] : null;
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[90vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-bg-dark">
-          {/* Abstract background elements */}
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-bg-dark opacity-50"></div>
-          <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-accent/5 blur-[120px]"></div>
-          <div className="absolute bottom-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[100px]"></div>
-        </div>
-        
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="font-playfair text-5xl md:text-7xl font-bold mb-6 text-accent"
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        {banners.map((b, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: idx === currentBannerIdx ? 1 : 0 }}
+            transition={{ duration: 1 }}
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ 
+              backgroundImage: b.hero_image ? `url(${b.hero_image})` : undefined,
+              backgroundColor: b.hero_image ? undefined : '#0B4D2B'
+            }}
           >
-            OLD MONEY
+            <div className="absolute inset-0 bg-black/45"></div>
+          </motion.div>
+        ))}
+        {banners.length === 0 && (
+          <div className="absolute inset-0 bg-[#0B4D2B]">
+            <div className="absolute inset-0 bg-black/45"></div>
+          </div>
+        )}
+        
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center justify-center w-full">
+          <motion.h1 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.3 }}
+            className="font-cormorant text-5xl md:text-7xl font-bold mb-6 text-text-light"
+          >
+            {banner?.hero_title || "OLD MONEY IN ALGERIA"}
           </motion.h1>
           <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-            className="text-xl md:text-2xl text-text-light/90 mb-10 font-light tracking-wide"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.6 }}
+            className="font-cormorant italic text-3xl md:text-5xl text-accent mb-10"
           >
-            Le Style qui parle avant vous
+            {banner?.hero_subtitle || "Le Style qui parle avant vous"}
           </motion.p>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.9 }}
           >
-            <Link to="/produits" className="btn-primary inline-block text-lg px-8 py-4 shadow-[0_0_20px_rgba(212,175,55,0.3)]">
-              Découvrir la Collection
+            <Link to="/collections" className="inline-block text-accent border border-accent uppercase tracking-[3px] px-10 py-3.5 hover:bg-accent hover:text-black transition-all duration-300">
+              {banner?.hero_button_text || "Découvrir la Collection"}
             </Link>
           </motion.div>
         </div>
@@ -70,7 +100,7 @@ const Home = () => {
       <section className="py-20 container mx-auto px-4">
         <div className="flex justify-between items-end mb-10">
           <h2 className="font-playfair text-3xl md:text-4xl font-bold text-accent">Nouveautés</h2>
-          <Link to="/produits" className="text-text-light hover:text-accent transition-colors underline underline-offset-4">Tout voir</Link>
+          <Link to="/collections" className="text-text-light hover:text-accent transition-colors underline underline-offset-4">Tout voir</Link>
         </div>
 
         {error ? (
@@ -96,7 +126,7 @@ const Home = () => {
                   key={prod.id} 
                   className="min-w-[280px] md:w-1/4 flex-shrink-0 snap-start group cursor-pointer"
                 >
-                  <Link to={`/produits/${prod.slug}`} className="block">
+                  <Link to={`/collections/${prod.slug}`} className="block">
                     <div className="relative aspect-[3/4] bg-white/5 rounded-lg overflow-hidden mb-4 border border-white/5">
                       {img ? (
                         <img src={img} alt={prod.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
