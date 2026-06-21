@@ -11,7 +11,6 @@ const Collections = () => {
   const [products, setProducts] = useState([]);
   const [collections, setCollections] = useState([]);
   const [banners, setBanners] = useState([]);
-  const [currentBannerIdx, setCurrentBannerIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -50,13 +49,7 @@ const Collections = () => {
     return () => clearTimeout(timeoutId);
   }, [searchTerm, selectedCol]);
 
-  useEffect(() => {
-    if (banners.length <= 1) return;
-    const interval = setInterval(() => {
-      setCurrentBannerIdx(prev => (prev + 1) % banners.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [banners]);
+  }, [searchTerm, selectedCol]);
 
   const updateParams = (key, value) => {
     if (value) searchParams.set(key, value);
@@ -64,32 +57,23 @@ const Collections = () => {
     setSearchParams(searchParams);
   };
 
-  const banner = banners.length > 0 ? banners[currentBannerIdx] : null;
+  const banner = banners.length > 0 ? banners[0] : null;
+  const bgImg = banner?.collections_hero_image || banner?.hero_image;
+  const title = banner?.collections_hero_title || "Nos Collections";
 
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative h-[40vh] md:h-[50vh] flex items-center justify-center overflow-hidden">
-        {banners.map((b, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: idx === currentBannerIdx ? 1 : 0 }}
-            transition={{ duration: 1 }}
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ 
-              backgroundImage: b.hero_image ? `url(${b.hero_image})` : undefined,
-              backgroundColor: b.hero_image ? undefined : '#0B4D2B'
-            }}
-          >
-            <div className="absolute inset-0 bg-black/45"></div>
-          </motion.div>
-        ))}
-        {banners.length === 0 && (
-          <div className="absolute inset-0 bg-[#0B4D2B]">
-            <div className="absolute inset-0 bg-black/45"></div>
-          </div>
-        )}
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-all duration-700"
+          style={{ 
+            backgroundImage: bgImg ? `url(${bgImg})` : undefined,
+            backgroundColor: bgImg ? undefined : '#0B4D2B'
+          }}
+        >
+          <div className="absolute inset-0 bg-black/45"></div>
+        </div>
         
         <div className="relative z-10 text-center px-4">
           <motion.h1 
@@ -98,7 +82,7 @@ const Collections = () => {
             transition={{ duration: 0.8 }}
             className="font-playfair text-4xl md:text-6xl font-bold text-text-light mb-4"
           >
-            Nos Collections
+            {title}
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
