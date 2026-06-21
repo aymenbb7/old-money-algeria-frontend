@@ -49,8 +49,6 @@ const Collections = () => {
     return () => clearTimeout(timeoutId);
   }, [searchTerm, selectedCol]);
 
-  }, [searchTerm, selectedCol]);
-
   const updateParams = (key, value) => {
     if (value) searchParams.set(key, value);
     else searchParams.delete(key);

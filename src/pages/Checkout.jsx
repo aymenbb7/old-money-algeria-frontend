@@ -75,6 +75,18 @@ const Checkout = () => {
       };
 
       const res = await submitOrder(payload);
+      
+      const orderToSave = {
+        orderNumber: res.order_number,
+        date: new Date().toISOString(),
+        itemsCount: cartItems.length,
+        wilaya: formData.wilaya,
+        status: 'PENDING'
+      };
+      const existingOrders = JSON.parse(localStorage.getItem('oma_orders') || '[]');
+      existingOrders.push(orderToSave);
+      localStorage.setItem('oma_orders', JSON.stringify(existingOrders));
+
       clearCart();
       navigate(`/commande/${res.order_number}`);
     } catch (err) {

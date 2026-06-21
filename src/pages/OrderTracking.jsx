@@ -20,6 +20,12 @@ const OrderTracking = () => {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [recentOrders, setRecentOrders] = useState([]);
+
+  useEffect(() => {
+    const orders = JSON.parse(localStorage.getItem('oma_orders') || '[]');
+    setRecentOrders(orders.reverse());
+  }, []);
 
   const handleSearch = useCallback(async (e) => {
     if (e) e.preventDefault();
@@ -69,6 +75,42 @@ const OrderTracking = () => {
           <Search size={20} />
         </button>
       </form>
+
+      {!order && !loading && (
+        <div className="max-w-3xl mx-auto mb-12">
+          <h2 className="font-playfair text-2xl font-bold mb-6 text-accent">Mes Commandes Récentes</h2>
+          {recentOrders.length === 0 ? (
+            <div className="text-center py-10 bg-white/5 border border-white/10 rounded-lg text-text-light/50">
+              Aucune commande récente sur cet appareil
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {recentOrders.map((ro, idx) => (
+                <div key={idx} className="bg-white/5 border border-white/10 rounded-lg p-5 flex flex-col gap-3 hover:border-accent/50 transition-colors">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-lg text-text-light">{ro.orderNumber}</span>
+                    <span className="text-xs px-2 py-1 bg-white/10 rounded font-semibold text-text-light/80">
+                      {ro.status}
+                    </span>
+                  </div>
+                  <div className="text-sm text-text-light/60">
+                    <p>{new Date(ro.date).toLocaleDateString('fr-FR')} • {ro.itemsCount} article(s)</p>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      setOrderNumber(ro.orderNumber);
+                      setSearchParams({ order: ro.orderNumber });
+                    }} 
+                    className="mt-2 text-accent text-sm font-semibold hover:underline text-left"
+                  >
+                    Voir le détail &rarr;
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {loading && <div className="text-center text-text-light/60">Recherche en cours...</div>}
       
