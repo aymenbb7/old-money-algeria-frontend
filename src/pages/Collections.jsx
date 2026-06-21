@@ -49,15 +49,17 @@ const Collections = () => {
     return () => clearTimeout(timeoutId);
   }, [searchTerm, selectedCol]);
 
+  // The banner logic was restored below
+
+  const banner = banners.length > 0 ? banners[0] : null;
+  const bannerImg = banner?.collections_hero_image_url || banner?.hero_image_url || null;
+  const title = banner?.collections_hero_title || "Nos Collections";
+
   const updateParams = (key, value) => {
     if (value) searchParams.set(key, value);
     else searchParams.delete(key);
     setSearchParams(searchParams);
   };
-
-  const banner = banners.length > 0 ? banners[0] : null;
-  const bgImg = banner?.collections_hero_image || banner?.hero_image;
-  const title = banner?.collections_hero_title || "Nos Collections";
 
   return (
     <div className="min-h-screen">

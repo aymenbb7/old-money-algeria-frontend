@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Truck, Clock } from 'lucide-react';
-import { fetchProducts, fetchHomepageBanners } from '../api';
+import { fetchHomepageBanners } from '../api';
 import Loader from '../components/Loader';
 import ErrorMessage from '../components/ErrorMessage';
 
 const Home = () => {
-  const [products, setProducts] = useState([]);
+  const [sections, setSections] = useState([]);
   const [banners, setBanners] = useState([]);
   const [currentBannerIdx, setCurrentBannerIdx] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -16,11 +16,11 @@ const Home = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [prodRes, bannerRes] = await Promise.all([
-          fetchProducts({ status: 'PUBLISHED', is_new_arrival: 'True' }),
+        const [secRes, bannerRes] = await Promise.all([
+          fetch('http://127.0.0.1:8001/api/v1/homepage/sections/').then(res => res.json()),
           fetchHomepageBanners().catch(() => [])
         ]);
-        setProducts(prodRes.results || []);
+        setSections(secRes.results || []);
         setBanners(bannerRes || []);
       } catch (err) {
         console.error(err);
@@ -54,8 +54,8 @@ const Home = () => {
             transition={{ duration: 1 }}
             className="absolute inset-0 bg-cover bg-center"
             style={{ 
-              backgroundImage: b.hero_image ? `url(${b.hero_image})` : undefined,
-              backgroundColor: b.hero_image ? undefined : '#0B4D2B'
+              backgroundImage: b.hero_image_url ? `url(${b.hero_image_url})` : undefined,
+              backgroundColor: b.hero_image_url ? undefined : '#0B4D2B'
             }}
           >
             <div className="absolute inset-0 bg-black/45"></div>
@@ -96,61 +96,77 @@ const Home = () => {
         </div>
       </section>
 
-      {/* New Arrivals (Horizontal Scroll on Mobile) */}
-      <section className="py-20 container mx-auto px-4">
-        <div className="flex justify-between items-end mb-10">
-          <h2 className="font-playfair text-3xl md:text-4xl font-bold text-accent">Nouveautés</h2>
-          <Link to="/collections" className="text-text-light hover:text-accent transition-colors underline underline-offset-4">Tout voir</Link>
-        </div>
-
-        {error ? (
-          <ErrorMessage />
-        ) : loading ? (
+      {/* Dynamic Homepage Sections */}
+      {error ? (
+        <section className="py-20 container mx-auto px-4"><ErrorMessage /></section>
+      ) : loading ? (
+        <section className="py-20 container mx-auto px-4">
           <div className="flex gap-6 overflow-x-hidden">
             {[1, 2, 3, 4].map(i => <div key={i} className="min-w-[280px] md:w-1/4 flex-shrink-0"><Loader type="card" /></div>)}
           </div>
-        ) : products.length === 0 ? (
-          <div className="text-center py-10 text-text-light/50 border border-white/10 rounded-lg">Aucun produit disponible</div>
-        ) : (
-          <div className="flex gap-6 overflow-x-auto pb-8 snap-x hide-scrollbar">
-            {products.slice(0, 5).map((prod, idx) => {
-              const price = prod.discount_price || prod.price;
-              const img = prod.images && prod.images.length > 0 ? prod.images[0].image : null;
+        </section>
+      ) : (
+        sections.map((section, sIdx) => {
+          if (!section.products || section.products.length === 0) return null;
+          
+          return (
+            <section key={section.id} className="py-16 container mx-auto px-4">
+              <div className="flex justify-between items-end mb-8">
+                <h2 className="font-playfair text-3xl md:text-4xl font-bold text-accent">{section.title}</h2>
+                <Link to="/collections" className="text-text-light hover:text-accent transition-colors underline underline-offset-4">Tout voir</Link>
+              </div>
               
-              return (
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: idx * 0.1 }}
-                  key={prod.id} 
-                  className="min-w-[280px] md:w-1/4 flex-shrink-0 snap-start group cursor-pointer"
-                >
-                  <Link to={`/collections/${prod.slug}`} className="block">
-                    <div className="relative aspect-[3/4] bg-white/5 rounded-lg overflow-hidden mb-4 border border-white/5">
-                      {img ? (
-                        <img src={img} alt={prod.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-white/20">Sans Image</div>
-                      )}
-                      {prod.discount_price && (
-                        <div className="absolute top-3 left-3 bg-error text-white text-xs font-bold px-2 py-1 rounded">PROMO</div>
-                      )}
-                    </div>
-                    <h3 className="font-semibold text-lg line-clamp-1">{prod.name}</h3>
-                    <div className="flex gap-2 items-center mt-1">
-                      <span className="font-bold text-accent">{parseFloat(price).toFixed(2)} DZD</span>
-                      {prod.discount_price && (
-                        <span className="text-text-light/40 line-through text-sm">{parseFloat(prod.price).toFixed(2)} DZD</span>
-                      )}
-                    </div>
-                  </Link>
-                </motion.div>
-              );
-            })}
-          </div>
-        )}
-      </section>
+              <div className="flex gap-6 overflow-x-auto pb-8 snap-x scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
+                {section.products.map((prod, idx) => {
+                  const price = prod.discount_price || prod.price;
+                  // Main image
+                  const mainImageObj = prod.images && prod.images.find(img => img.is_main);
+                  const fallbackImageObj = prod.images && prod.images.length > 0 ? prod.images[0] : null;
+                  const img = mainImageObj ? mainImageObj.image : (fallbackImageObj ? fallbackImageObj.image : null);
+                  
+                  return (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.1 }}
+                      key={prod.id} 
+                      className="w-[70%] md:w-[30%] flex-shrink-0 snap-start group relative flex flex-col"
+                    >
+                      <Link to={`/collections/${prod.slug}`} className="block relative aspect-[3/4] bg-white/5 rounded-lg overflow-hidden mb-4 border border-white/5">
+                        {img ? (
+                          <img src={img} alt={prod.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-white/20">Sans Image</div>
+                        )}
+                        {prod.discount_price && (
+                          <div className="absolute top-3 left-3 bg-error text-white text-xs font-bold px-2 py-1 rounded">PROMO</div>
+                        )}
+                      </Link>
+                      
+                      <div className="flex flex-col flex-grow">
+                        <Link to={`/collections/${prod.slug}`}>
+                          <h3 className="font-semibold text-lg line-clamp-1 hover:text-accent transition-colors">{prod.name}</h3>
+                          <div className="flex gap-2 items-center mt-1 mb-3">
+                            <span className="font-bold text-accent">{parseFloat(price).toFixed(2)} DZD</span>
+                            {prod.discount_price && (
+                              <span className="text-text-light/40 line-through text-sm">{parseFloat(prod.price).toFixed(2)} DZD</span>
+                            )}
+                          </div>
+                        </Link>
+                        
+                        <Link to={`/collections/${prod.slug}`} className="mt-auto w-full block text-center py-2.5 border border-white/10 hover:border-accent hover:text-accent transition-all rounded-md text-sm uppercase tracking-wider font-semibold">
+                          Ajouter au Panier
+                        </Link>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })
+      )}
 
       {/* Brand Values */}
       <section className="py-20 bg-[#050505] border-y border-white/5">
