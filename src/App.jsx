@@ -8,7 +8,6 @@ import CartPage from './pages/CartPage';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 import OrderTracking from './pages/OrderTracking';
-import Lookbook from './pages/Lookbook';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -27,7 +26,6 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/collections" element={<Collections />} />
               <Route path="/collections/:slug" element={<ProductDetail />} />
-              <Route path="/lookbook" element={<Lookbook />} />
               <Route path="/panier" element={<CartPage />} />
               <Route path="/commander" element={<Checkout />} />
               <Route path="/commande/:orderNumber" element={<OrderConfirmation />} />

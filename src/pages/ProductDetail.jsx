@@ -58,7 +58,8 @@ const ProductDetail = () => {
 
   // Derive unique sizes and colors
   const uniqueSizes = [...new Set(product.variants.map(v => v.size).filter(Boolean))];
-  const uniqueColors = [...new Set(product.variants.map(v => v.color).filter(Boolean))];
+  const variantsForSize = selectedSize ? product.variants.filter(v => v.size === selectedSize) : product.variants;
+  const uniqueColors = [...new Set(variantsForSize.map(v => v.color).filter(Boolean))];
   
   const currentVariant = product.variants.find(v => v.size === selectedSize && v.color === selectedColor);
   const isOutOfStock = currentVariant ? currentVariant.stock <= 0 : product.status === 'OUT_OF_STOCK';

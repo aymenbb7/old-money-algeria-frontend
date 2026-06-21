@@ -9,6 +9,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   
   const [wilayas, setWilayas] = useState([]);
+  const [activeCoupons, setActiveCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   
@@ -26,17 +27,28 @@ const Checkout = () => {
   useEffect(() => {
     if (cartItems.length === 0) navigate('/panier');
     
-    const loadWilayas = async () => {
+    const loadData = async () => {
       try {
         const res = await fetchWilayas();
         setWilayas(res.results || res || []);
+
+        try {
+          // Attempt to fetch active coupons to see if we should display the promo input
+          const couponsRes = await fetch('https://old-money-algeria-backend.onrender.com/api/v1/coupons/active/');
+          const cData = await couponsRes.json();
+          if (cData && cData.results) {
+             setActiveCoupons(cData.results);
+          }
+        } catch(e) {
+             console.error("Failed to fetch active coupons", e);
+        }
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    loadWilayas();
+    loadData();
   }, [cartItems, navigate]);
 
   useEffect(() => {
@@ -66,12 +78,13 @@ const Checkout = () => {
     try {
       const payload = {
         ...formData,
-        items: cartItems.map(item => ({
-          product: item.product.id,
-          size: item.size,
-          color: item.color,
-          quantity: item.quantity
-        }))
+        items: cartItems.map(item => {
+          const variant = item.product.variants.find(v => v.size === item.size && v.color === item.color);
+          return {
+            variant_id: variant ? variant.id : null,
+            quantity: item.quantity
+          };
+        })
       };
 
       const res = await submitOrder(payload);
@@ -151,10 +164,12 @@ const Checkout = () => {
               </div>
             </div>
             
-            <div className="pt-4 border-t border-white/10">
-              <label className="block text-sm text-text-light/60 mb-2">Code Promo (Optionnel)</label>
-              <input name="coupon_code" value={formData.coupon_code} onChange={handleInputChange} type="text" className="w-full md:w-1/2 bg-bg-dark border border-white/20 rounded p-3 focus:outline-none focus:border-accent uppercase" placeholder="EX: OMA2026" />
-            </div>
+            {activeCoupons.length > 0 && (
+              <div className="pt-4 border-t border-white/10">
+                <label className="block text-sm text-text-light/60 mb-2">Code Promo (Optionnel)</label>
+                <input name="coupon_code" value={formData.coupon_code} onChange={handleInputChange} type="text" className="w-full md:w-1/2 bg-bg-dark border border-white/20 rounded p-3 focus:outline-none focus:border-accent uppercase" placeholder="EX: OMA2026" />
+              </div>
+            )}
 
           </form>
         </div>

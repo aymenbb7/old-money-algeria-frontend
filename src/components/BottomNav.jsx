@@ -1,4 +1,4 @@
-import { Home, Search, ShoppingBag, Truck, Camera } from 'lucide-react';
+import { Home, Grid, ShoppingBag, Package } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
@@ -8,9 +8,8 @@ const BottomNav = () => {
 
   const navItems = [
     { path: '/', icon: Home, label: 'Accueil' },
-    { path: '/collections', icon: Search, label: 'Collections' },
-    { path: '/lookbook', icon: Camera, label: 'Lookbook' },
-    { path: '/suivi', icon: Truck, label: 'Suivi' },
+    { path: '/collections', icon: Grid, label: 'Collections' },
+    { path: '/suivi', icon: Package, label: 'Suivi' },
     { path: '/panier', icon: ShoppingBag, label: 'Panier', badge: totalItems },
   ];
 
