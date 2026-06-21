@@ -61,3 +61,8 @@ export const fetchHomepageBanners = async () => {
   }
   return [];
 };
+
+export const fetchLookbookItems = async () => {
+  const response = await apiClient.get('/lookbook/');
+  return response.data;
+};
