@@ -28,7 +28,7 @@ function App() {
               <Route path="/collections/:slug" element={<ProductDetail />} />
               <Route path="/panier" element={<CartPage />} />
               <Route path="/commander" element={<Checkout />} />
-              <Route path="/commande/:orderNumber" element={<OrderConfirmation />} />
+              <Route path="/confirmation/:orderNumber" element={<OrderConfirmation />} />
               <Route path="/suivi" element={<OrderTracking />} />
               <Route path="/lookbook" element={<Navigate to="/" replace />} />
             </Routes>

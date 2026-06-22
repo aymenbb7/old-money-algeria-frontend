@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Search, MessageCircle, Check } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useSearchParams, Link } from 'react-router-dom';
+import { Search, MessageCircle, Check, Copy, ChevronDown, ChevronUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { trackOrder, fetchSettings } from '../api';
 
 const STATUS_STAGES = [
@@ -12,10 +12,249 @@ const STATUS_STAGES = [
   { key: 'DELIVERED', lines: ['LIVRÉE'] }
 ];
 
+const getStatusIndex = (status) => {
+  return STATUS_STAGES.findIndex(s => s.key === status);
+};
+
+const StatusBadge = ({ status }) => {
+  const badgeConfig = {
+    'PENDING': { color: 'bg-gray-500/20 text-gray-300 border-gray-500/30', label: 'EN ATTENTE' },
+    'CONFIRMED': { color: 'bg-blue-500/20 text-blue-400 border-blue-500/30', label: 'CONFIRMÉE' },
+    'PREPARING': { color: 'bg-orange-500/20 text-orange-400 border-orange-500/30', label: 'EN PRÉPARATION' },
+    'SHIPPED': { color: 'bg-purple-500/20 text-purple-400 border-purple-500/30', label: 'EN LIVRAISON' },
+    'DELIVERED': { color: 'bg-green-500/20 text-green-400 border-green-500/30', label: 'LIVRÉE' },
+    'CANCELLED': { color: 'bg-red-500/20 text-red-400 border-red-500/30', label: 'ANNULÉE' }
+  };
+  
+  const config = badgeConfig[status] || badgeConfig['PENDING'];
+  
+  return (
+    <span className={`text-xs px-3 py-1 rounded-full border font-semibold ${config.color}`}>
+      {config.label}
+    </span>
+  );
+};
+
+const Timeline = ({ status }) => {
+  if (status === 'CANCELLED') {
+    return (
+      <div className="text-center bg-error/20 text-error p-4 rounded font-bold mt-4">
+        Cette commande a été annulée.
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative mt-8 mb-6 px-2">
+      <style>{`
+        @keyframes pulse-ring {
+          0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+          70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+        }
+        .pulse-active { animation: pulse-ring 2s infinite; }
+      `}</style>
+      
+      {/* Horizontal connecting lines */}
+      <div className="absolute top-4 left-[20px] right-[20px] h-[2px] bg-zinc-800 z-0">
+        <div 
+          className="h-full transition-all duration-700 ease-in-out" 
+          style={{ width: `${(getStatusIndex(status) / 4) * 100}%`, backgroundColor: '#D4AF37' }}
+        />
+      </div>
+
+      <div className="flex justify-between relative z-10">
+        {STATUS_STAGES.map((stage, idx) => {
+          const currentIndex = getStatusIndex(status);
+          const isCompleted = idx <= currentIndex;
+          const isActive = idx === currentIndex;
+          const isPast = isCompleted && !isActive;
+
+          return (
+            <div key={stage.key} className="flex flex-col items-center gap-2 flex-1">
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: idx * 0.1 }}
+                className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all z-10 ${
+                  isPast ? 'text-zinc-950' : isActive ? 'text-zinc-950 pulse-active' : 'text-zinc-500'
+                }`}
+                style={{
+                  backgroundColor: isCompleted ? '#D4AF37' : '#111111',
+                  borderColor: isCompleted ? '#D4AF37' : '#3f3f46',
+                }}
+              >
+                {isPast ? (
+                  <Check size={14} className="stroke-[3]" />
+                ) : isActive ? (
+                  <div className="w-2 h-2 bg-zinc-950 rounded-full" />
+                ) : null}
+              </motion.div>
+              <div className="text-center">
+                <p className={`font-semibold text-[10px] sm:text-xs tracking-wider ${isActive ? 'text-accent' : isPast ? 'text-text-light' : 'text-zinc-500'}`}>
+                  <span className="block">{stage.lines[0]}</span>
+                  {stage.lines[1] && <span className="block">{stage.lines[1]}</span>}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const OrderCard = ({ orderData, initiallyExpanded = false }) => {
+  const [expanded, setExpanded] = useState(initiallyExpanded);
+  const [copied, setCopied] = useState(false);
+  const [fullOrderDetails, setFullOrderDetails] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  
+  // orderData from local storage usually just has orderNumber, date, itemsCount, wilaya, status
+  // but if it's fetched directly via search, it has the full object
+  const isFullData = !!orderData.items;
+  
+  useEffect(() => {
+    if (isFullData) {
+      setFullOrderDetails(orderData);
+    }
+  }, [isFullData, orderData]);
+
+  const handleCopy = (e) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(orderData.order_number || orderData.orderNumber);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const toggleExpand = async () => {
+    if (!expanded && !fullOrderDetails) {
+      setLoadingDetails(true);
+      try {
+        const details = await trackOrder(orderData.orderNumber);
+        setFullOrderDetails(details);
+      } catch (err) {
+        console.error("Could not fetch details", err);
+      } finally {
+        setLoadingDetails(false);
+      }
+    }
+    setExpanded(!expanded);
+  };
+
+  const displayOrderNumber = orderData.order_number || orderData.orderNumber;
+  const displayDate = orderData.created_at || orderData.date;
+  const displayItemsCount = orderData.items?.length || orderData.itemsCount;
+  const displayStatus = fullOrderDetails?.status || orderData.status;
+  const displayWilaya = fullOrderDetails?.wilaya_name || orderData.wilaya;
+
+  return (
+    <div className="bg-white/5 border border-white/10 rounded-lg p-5 flex flex-col gap-3 hover:border-accent/40 transition-colors">
+      <div className="flex justify-between items-start">
+        <div className="flex items-center gap-3">
+          <span className="font-bold text-xl text-accent tracking-widest">{displayOrderNumber}</span>
+          <button 
+            onClick={handleCopy}
+            className="flex items-center gap-1 text-xs px-2 py-1 border border-accent/50 text-accent rounded hover:bg-accent hover:text-black transition-colors"
+          >
+            {copied ? <><Check size={12}/> Copié!</> : 'Copier'}
+          </button>
+        </div>
+      </div>
+      
+      <div className="text-sm text-text-light/60 flex items-center gap-2">
+        <span>{new Date(displayDate).toLocaleDateString('fr-FR')}</span>
+        <span>•</span>
+        <span>{displayItemsCount} article(s)</span>
+      </div>
+      
+      <div className="flex items-center gap-3 mt-1">
+        <StatusBadge status={displayStatus} />
+        {displayWilaya && (
+          <span className="text-sm text-text-light/70">Wilaya: {displayWilaya}</span>
+        )}
+      </div>
+
+      <div className="mt-2 text-right">
+        <button 
+          onClick={toggleExpand}
+          className="text-accent text-sm font-semibold hover:underline inline-flex items-center gap-1"
+        >
+          {expanded ? 'Fermer' : 'Voir le détail'} 
+          {expanded ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {expanded && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="border-t border-white/10 pt-4 mt-2">
+              {loadingDetails ? (
+                <div className="text-center py-4 text-sm text-text-light/50">Chargement des détails...</div>
+              ) : fullOrderDetails ? (
+                <>
+                  <Timeline status={fullOrderDetails.status} />
+                  
+                  {fullOrderDetails.items && fullOrderDetails.items.length > 0 && (
+                    <div className="mt-6 bg-black/20 rounded p-4">
+                      <h4 className="font-semibold mb-3 text-sm border-b border-white/10 pb-2">Articles commandés</h4>
+                      <div className="space-y-3">
+                        {fullOrderDetails.items.map((item, idx) => (
+                          <div key={idx} className="flex gap-3 items-center">
+                            {item.product_image && (
+                              <img src={item.product_image} alt={item.product_name} className="w-12 h-12 object-cover rounded" />
+                            )}
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">{item.product_name}</p>
+                              <p className="text-xs text-text-light/60">
+                                {item.variant_color && item.variant_size ? `${item.variant_color} - ${item.variant_size}` : ''} 
+                                {item.variant_color || item.variant_size ? ' • ' : ''}
+                                Qté: {item.quantity}
+                              </p>
+                            </div>
+                            <div className="text-sm font-semibold text-accent">
+                              {parseFloat(item.price).toFixed(2)} DZD
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-white/10 flex justify-between font-bold">
+                        <span>Total:</span>
+                        <span className="text-accent">{parseFloat(fullOrderDetails.total_amount).toFixed(2)} DZD</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="mt-4 text-right">
+                    <button 
+                      onClick={() => setExpanded(false)}
+                      className="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded transition-colors"
+                    >
+                      Fermer
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center text-error text-sm py-2">Impossible de charger les détails</div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+
 const OrderTracking = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [orderNumber, setOrderNumber] = useState(searchParams.get('order') || '');
-  const [order, setOrder] = useState(null);
+  const [searchedOrder, setSearchedOrder] = useState(null);
   const [settings, setSettings] = useState(null);
   
   const [loading, setLoading] = useState(false);
@@ -24,7 +263,9 @@ const OrderTracking = () => {
 
   useEffect(() => {
     const orders = JSON.parse(localStorage.getItem('oma_orders') || '[]');
-    setRecentOrders(orders.reverse());
+    // Sort by date descending (newest first)
+    const sorted = orders.sort((a, b) => new Date(b.date) - new Date(a.date));
+    setRecentOrders(sorted);
   }, []);
 
   const handleSearch = useCallback(async (e) => {
@@ -33,12 +274,12 @@ const OrderTracking = () => {
     
     setLoading(true);
     setError('');
-    setOrder(null);
+    setSearchedOrder(null);
     setSearchParams({ order: orderNumber });
 
     try {
       const res = await trackOrder(orderNumber);
-      setOrder(res);
+      setSearchedOrder(res);
     } catch (err) {
       console.error(err);
       setError('Commande introuvable. Veuillez vérifier le numéro OMA-XXXX.');
@@ -49,17 +290,12 @@ const OrderTracking = () => {
 
   useEffect(() => {
     fetchSettings().then(setSettings).catch(console.error);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (orderNumber) handleSearch();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getStatusIndex = (status) => {
-    return STATUS_STAGES.findIndex(s => s.key === status);
-  };
-
   return (
-    <div className="container mx-auto px-4 py-10 md:py-20 min-h-[70vh]">
+    <div className="container mx-auto px-4 py-10 md:py-16 min-h-[70vh]">
       <h1 className="font-playfair text-3xl md:text-4xl font-bold mb-8 text-accent text-center">Suivre une Commande</h1>
 
       <form onSubmit={handleSearch} className="max-w-xl mx-auto flex gap-2 mb-12">
@@ -76,177 +312,51 @@ const OrderTracking = () => {
         </button>
       </form>
 
-      {!order && !loading && (
-        <div className="max-w-3xl mx-auto mb-12">
+      {loading && <div className="text-center text-text-light/60 my-8">Recherche en cours...</div>}
+      
+      {error && (
+        <div className="max-w-xl mx-auto bg-error/10 border border-error/20 text-error p-4 rounded-lg text-center my-8">
+          {error}
+        </div>
+      )}
+
+      {/* Show searched order result if available */}
+      {searchedOrder && (
+        <div className="max-w-3xl mx-auto mb-16">
+          <h2 className="font-playfair text-2xl font-bold mb-6 text-accent">Résultat de la recherche</h2>
+          <OrderCard orderData={searchedOrder} initiallyExpanded={true} />
+        </div>
+      )}
+
+      {/* Recent Orders Section */}
+      {!searchedOrder && !loading && (
+        <div className="max-w-3xl mx-auto">
           <h2 className="font-playfair text-2xl font-bold mb-6 text-accent">Mes Commandes Récentes</h2>
           {recentOrders.length === 0 ? (
             <div className="text-center py-10 bg-white/5 border border-white/10 rounded-lg text-text-light/50">
               Aucune commande récente sur cet appareil
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-4">
               {recentOrders.map((ro, idx) => (
-                <div key={idx} className="bg-white/5 border border-white/10 rounded-lg p-5 flex flex-col gap-3 hover:border-accent/50 transition-colors">
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-lg text-text-light">{ro.orderNumber}</span>
-                    <span className="text-xs px-2 py-1 bg-white/10 rounded font-semibold text-text-light/80">
-                      {ro.status}
-                    </span>
-                  </div>
-                  <div className="text-sm text-text-light/60">
-                    <p>{new Date(ro.date).toLocaleDateString('fr-FR')} • {ro.itemsCount} article(s)</p>
-                  </div>
-                  <button 
-                    onClick={() => {
-                      setOrderNumber(ro.orderNumber);
-                      setSearchParams({ order: ro.orderNumber });
-                    }} 
-                    className="mt-2 text-accent text-sm font-semibold hover:underline text-left"
-                  >
-                    Voir le détail &rarr;
-                  </button>
-                </div>
+                <OrderCard key={`${ro.orderNumber}-${idx}`} orderData={ro} />
               ))}
             </div>
           )}
         </div>
       )}
 
-      {loading && <div className="text-center text-text-light/60">Recherche en cours...</div>}
-      
-      {error && (
-        <div className="max-w-xl mx-auto bg-error/10 border border-error/20 text-error p-4 rounded-lg text-center">
-          {error}
-        </div>
-      )}
-
-      {order && (
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-white/5 border border-white/10 rounded-lg p-6 md:p-10">
-            <div className="flex justify-between items-start mb-10 border-b border-white/10 pb-6">
-              <div>
-                <h3 className="font-playfair text-2xl font-bold text-accent mb-2">{order.order_number}</h3>
-                <p className="text-text-light/60 text-sm">Passée le {new Date(order.created_at).toLocaleDateString('fr-FR')}</p>
-              </div>
-              <div className="text-right">
-                <p className="font-bold text-xl">{parseFloat(order.total_amount).toFixed(2)} DZD</p>
-                <p className="text-text-light/60 text-sm">{order.items?.length || 0} article(s)</p>
-              </div>
-            </div>
-
-            {/* Timeline */}
-            <style>{`
-              @keyframes pulse-ring {
-                0% {
-                  box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7);
-                }
-                70% {
-                  box-shadow: 0 0 0 10px rgba(212, 175, 55, 0);
-                }
-                100% {
-                  box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
-                }
-              }
-              .pulse-active {
-                animation: pulse-ring 2s infinite;
-              }
-            `}</style>
-            <div className="relative mb-16 px-4 md:px-0">
-              {/* Horizontal connecting lines (Desktop) */}
-              <div className="absolute top-5 left-[30px] right-[30px] h-[3px] bg-zinc-700 z-0 hidden md:block">
-                <div 
-                  className="h-full transition-all duration-500" 
-                  style={{ width: `${(getStatusIndex(order.status) / 4) * 100}%`, backgroundColor: '#D4AF37' }}
-                />
-              </div>
-              
-              {/* Vertical connecting lines (Mobile) */}
-              <div className="absolute left-[36px] top-5 bottom-5 w-[3px] bg-zinc-700 z-0 md:hidden">
-                <div 
-                  className="w-full transition-all duration-500" 
-                  style={{ height: `${(getStatusIndex(order.status) / 4) * 100}%`, backgroundColor: '#D4AF37' }}
-                />
-              </div>
-
-              <div className="flex flex-col md:flex-row justify-between relative z-10 gap-8 md:gap-0">
-                {STATUS_STAGES.map((stage, idx) => {
-                  const currentIndex = getStatusIndex(order.status);
-                  const isCompleted = idx <= currentIndex;
-                  const isActive = idx === currentIndex;
-                  const isPast = isCompleted && !isActive;
-                  
-                  if (order.status === 'CANCELLED') {
-                    return null;
-                  }
-
-                  return (
-                    <div key={stage.key} className="flex md:flex-col items-center gap-6 md:gap-4 flex-1">
-                      <motion.div 
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: idx * 0.1 }}
-                        className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all z-10 ${
-                          isPast ? 'text-zinc-950' :
-                          isActive ? 'text-zinc-950 pulse-active' :
-                          'text-zinc-500'
-                        }`}
-                        style={{
-                          backgroundColor: isCompleted ? '#D4AF37' : '#111111',
-                          borderColor: isCompleted ? '#D4AF37' : '#3f3f46',
-                        }}
-                      >
-                        {isPast ? (
-                          <Check size={18} className="stroke-[3]" />
-                        ) : isActive ? (
-                          <div className="w-2.5 h-2.5 bg-zinc-950 rounded-full" />
-                        ) : null}
-                      </motion.div>
-                      <div className="text-left md:text-center">
-                        <p className={`font-semibold text-xs tracking-wider md:mt-2 ${isActive ? 'text-accent' : isPast ? 'text-text-light' : 'text-zinc-500'}`}>
-                          {stage.lines.map((line, lIdx) => (
-                            <span key={lIdx} className="inline md:block md:w-full">{line}{lIdx < stage.lines.length - 1 ? ' ' : ''}</span>
-                          ))}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {order.status === 'CANCELLED' && (
-              <div className="text-center bg-error/20 text-error p-4 rounded mb-10 font-bold">
-                Cette commande a été annulée.
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-white/10 pt-8">
-              <div>
-                <h4 className="font-playfair font-bold text-lg mb-4">Informations de Livraison</h4>
-                <div className="text-text-light/80 text-sm space-y-2">
-                  <p><span className="text-text-light/50">Client :</span> {order.guest_name}</p>
-                  <p><span className="text-text-light/50">Téléphone :</span> {order.guest_phone}</p>
-                  <p><span className="text-text-light/50">Wilaya :</span> {order.wilaya_name}</p>
-                  <p><span className="text-text-light/50">Type :</span> {order.delivery_type === 'HOME' ? 'À Domicile' : 'Point Relais'}</p>
-                  <p><span className="text-text-light/50">Adresse :</span> {order.delivery_address}, {order.commune}</p>
-                </div>
-              </div>
-              
-              <div className="flex flex-col justify-end">
-                {settings?.whatsapp_number && (
-                  <a 
-                    href={`https://wa.me/${settings.whatsapp_number.replace(/\s+/g, '')}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="btn-outline flex items-center justify-center gap-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white"
-                  >
-                    <MessageCircle size={20} />
-                    Contacter le support WhatsApp
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
+      {settings?.whatsapp_number && (
+        <div className="mt-16 text-center">
+          <a 
+            href={`https://wa.me/${settings.whatsapp_number.replace(/\s+/g, '')}`} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 text-sm text-text-light/60 hover:text-[#25D366] transition-colors"
+          >
+            <MessageCircle size={18} />
+            Un problème avec votre commande ? Contactez le support WhatsApp
+          </a>
         </div>
       )}
     </div>

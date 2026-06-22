@@ -101,7 +101,7 @@ const Checkout = () => {
       localStorage.setItem('oma_orders', JSON.stringify(existingOrders));
 
       clearCart();
-      navigate(`/commande/${res.order_number}`);
+      navigate(`/confirmation/${res.order_number}`);
     } catch (err) {
       console.error(err);
       alert("Une erreur est survenue lors de la commande. Veuillez vérifier vos informations.");
