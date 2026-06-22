@@ -171,7 +171,7 @@ const Collections = () => {
             <AnimatePresence>
               {products.map((prod, idx) => {
                 const price = prod.discount_price || prod.price;
-                const img = prod.images && prod.images.length > 0 ? prod.images[0].image : null;
+                const imageUrl = prod.images?.[0]?.image_url || prod.images?.[0]?.image || null;
                 
                 return (
                   <motion.div 
@@ -183,12 +183,14 @@ const Collections = () => {
                     key={prod.id} 
                     className="group cursor-pointer"
                   >
-                    <Link to={`/collections/${prod.slug}`} className="block">
-                      <div className="relative aspect-[3/4] bg-white/5 rounded-lg overflow-hidden mb-4 border border-white/5">
-                        {img ? (
-                          <img src={img} alt={prod.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <Link to={`/produits/${prod.slug}`} className="block">
+                      <div className="relative aspect-[3/4] bg-[#0B4D2B] rounded-lg overflow-hidden mb-4 border border-white/5">
+                        {imageUrl ? (
+                          <img src={imageUrl} alt={prod.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-white/20">Sans Image</div>
+                          <div className="w-full h-full flex flex-col items-center justify-center text-accent/50 group-hover:text-accent transition-colors duration-500">
+                            <span className="font-playfair text-4xl md:text-5xl font-bold tracking-widest opacity-30 group-hover:opacity-100 transition-opacity duration-500">OM</span>
+                          </div>
                         )}
                         {prod.discount_price && (
                           <div className="absolute top-2 left-2 bg-error text-white text-xs font-bold px-2 py-1 rounded">PROMO</div>

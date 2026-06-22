@@ -27,7 +27,9 @@ const ProductDetail = () => {
       try {
         const prod = await fetchProductBySlug(slug);
         setProduct(prod);
-        if (prod.images?.length > 0) setActiveImage(prod.images[0].image);
+        if (prod.images?.length > 0) {
+          setActiveImage(prod.images[0].image_url || prod.images[0].image);
+        }
         
         // Auto select first variant if exists
         if (prod.variants?.length > 0) {
@@ -86,24 +88,29 @@ const ProductDetail = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
         {/* Gallery */}
         <div className="space-y-4">
-          <div className="aspect-[3/4] bg-white/5 rounded-lg overflow-hidden border border-white/5">
+          <div className="aspect-[3/4] bg-[#0B4D2B] rounded-lg overflow-hidden border border-white/5">
             {activeImage ? (
               <img src={activeImage} alt={product.name} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-white/20">Sans Image</div>
+              <div className="w-full h-full flex flex-col items-center justify-center text-accent/50">
+                <span className="font-playfair text-6xl font-bold tracking-widest opacity-30">OM</span>
+              </div>
             )}
           </div>
           {product.images?.length > 1 && (
             <div className="flex gap-4 overflow-x-auto hide-scrollbar snap-x">
-              {product.images.map(img => (
-                <button 
-                  key={img.id} 
-                  onClick={() => setActiveImage(img.image)}
-                  className={`w-20 h-24 flex-shrink-0 rounded overflow-hidden border-2 transition-colors snap-center ${activeImage === img.image ? 'border-accent' : 'border-transparent'}`}
-                >
-                  <img src={img.image} className="w-full h-full object-cover" alt="Thumb" />
-                </button>
-              ))}
+              {product.images.map(img => {
+                const imgUrl = img.image_url || img.image;
+                return (
+                  <button 
+                    key={img.id} 
+                    onClick={() => setActiveImage(imgUrl)}
+                    className={`w-20 h-24 flex-shrink-0 rounded overflow-hidden border-2 transition-colors snap-center ${activeImage === imgUrl ? 'border-accent' : 'border-transparent'}`}
+                  >
+                    <img src={imgUrl} className="w-full h-full object-cover" alt="Thumb" />
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -193,11 +200,17 @@ const ProductDetail = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             {related.map(prod => {
               const pPrice = prod.discount_price || prod.price;
-              const img = prod.images?.[0]?.image;
+              const imgUrl = prod.images?.[0]?.image_url || prod.images?.[0]?.image || null;
               return (
                 <Link to={`/produits/${prod.slug}`} key={prod.id} className="group block">
-                  <div className="aspect-[3/4] bg-white/5 rounded-lg overflow-hidden mb-3">
-                    {img && <img src={img} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />}
+                  <div className="aspect-[3/4] bg-[#0B4D2B] rounded-lg overflow-hidden mb-3">
+                    {imgUrl ? (
+                      <img src={imgUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={prod.name} />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-accent/50 group-hover:text-accent transition-colors duration-500">
+                        <span className="font-playfair text-3xl font-bold tracking-widest opacity-30 group-hover:opacity-100 transition-opacity duration-500">OM</span>
+                      </div>
+                    )}
                   </div>
                   <h4 className="font-semibold text-sm line-clamp-1">{prod.name}</h4>
                   <span className="font-bold text-accent text-sm">{parseFloat(pPrice).toFixed(2)} DZD</span>

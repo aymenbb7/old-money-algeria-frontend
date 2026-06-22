@@ -66,7 +66,10 @@ const Home = () => {
           console.error("fetchHomepageBanners failed:", err);
         }
 
-        setSections(Array.isArray(secRes?.results) ? secRes.results : (Array.isArray(secRes) ? secRes : []));
+        const activeSections = Array.isArray(secRes?.results) 
+          ? secRes.results.filter(s => s.is_active) 
+          : (Array.isArray(secRes) ? secRes.filter(s => s.is_active) : []);
+        setSections(activeSections);
         setBanners(Array.isArray(bannerRes) ? bannerRes : []);
       } catch (err) {
         console.error("loadData main block failed:", err);
@@ -247,10 +250,7 @@ const Home = () => {
               <div className="flex gap-6 overflow-x-auto pb-8 snap-x scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
                 {section.products.map((prod, idx) => {
                   const price = prod.discount_price || prod.price;
-                  // Main image
-                  const mainImageObj = prod.images && prod.images.find(img => img.is_main);
-                  const fallbackImageObj = prod.images && prod.images.length > 0 ? prod.images[0] : null;
-                  const img = mainImageObj ? mainImageObj.image : (fallbackImageObj ? fallbackImageObj.image : null);
+                  const imageUrl = prod.images?.[0]?.image_url || prod.images?.[0]?.image || null;
                   
                   return (
                     <motion.div 
@@ -261,11 +261,13 @@ const Home = () => {
                       key={prod.id} 
                       className="w-[70%] md:w-[30%] flex-shrink-0 snap-start group relative flex flex-col"
                     >
-                      <Link to={`/collections/${prod.slug}`} className="block relative aspect-[3/4] bg-white/5 rounded-lg overflow-hidden mb-4 border border-white/5">
-                        {img ? (
-                          <img src={img} alt={prod.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <Link to={`/produits/${prod.slug}`} className="block relative aspect-[3/4] bg-[#0B4D2B] rounded-lg overflow-hidden mb-4 border border-white/5">
+                        {imageUrl ? (
+                          <img src={imageUrl} alt={prod.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-white/20">Sans Image</div>
+                          <div className="w-full h-full flex flex-col items-center justify-center text-accent/50 group-hover:text-accent transition-colors duration-500">
+                            <span className="font-playfair text-5xl font-bold tracking-widest opacity-30 group-hover:opacity-100 transition-opacity duration-500">OM</span>
+                          </div>
                         )}
                         {prod.discount_price && (
                           <div className="absolute top-3 left-3 bg-error text-white text-xs font-bold px-2 py-1 rounded">PROMO</div>
@@ -273,7 +275,7 @@ const Home = () => {
                       </Link>
                       
                       <div className="flex flex-col flex-grow">
-                        <Link to={`/collections/${prod.slug}`}>
+                        <Link to={`/produits/${prod.slug}`}>
                           <h3 className="font-semibold text-lg line-clamp-1 hover:text-accent transition-colors">{prod.name}</h3>
                           <div className="flex gap-2 items-center mt-1 mb-3">
                             <span className="font-bold text-accent">{parseFloat(price).toFixed(2)} DZD</span>
@@ -283,7 +285,7 @@ const Home = () => {
                           </div>
                         </Link>
                         
-                        <Link to={`/collections/${prod.slug}`} className="mt-auto w-full block text-center py-2.5 border border-white/10 hover:border-accent hover:text-accent transition-all rounded-md text-sm uppercase tracking-wider font-semibold">
+                        <Link to={`/produits/${prod.slug}`} className="mt-auto w-full block text-center py-2.5 border border-white/10 hover:border-accent hover:text-accent transition-all rounded-md text-sm uppercase tracking-wider font-semibold">
                           Ajouter au Panier
                         </Link>
                       </div>
@@ -296,34 +298,6 @@ const Home = () => {
         })
       )}
 
-      {/* Brand Values */}
-      <section className="py-20 bg-[#050505] border-y border-white/5">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-accent mb-6">
-                <ShieldCheck size={32} />
-              </div>
-              <h3 className="font-playfair text-xl font-bold mb-3">Qualité Premium</h3>
-              <p className="text-text-light/60">Des matières nobles sélectionnées pour durer et affirmer votre statut.</p>
-            </motion.div>
-            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-accent mb-6">
-                <Truck size={32} />
-              </div>
-              <h3 className="font-playfair text-xl font-bold mb-3">Livraison 58 Wilayas</h3>
-              <p className="text-text-light/60">Payez en espèces à la livraison. Nous expédions partout en Algérie.</p>
-            </motion.div>
-            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.4 }} className="flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-accent mb-6">
-                <Clock size={32} />
-              </div>
-              <h3 className="font-playfair text-xl font-bold mb-3">Élégance Intemporelle</h3>
-              <p className="text-text-light/60">Des coupes minimalistes inspirées par l'esthétique 'Old Money'.</p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 };
