@@ -1,10 +1,42 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Truck, Clock } from 'lucide-react';
-import { fetchHomepageBanners } from '../api';
+import { fetchHomepageBanners, fetchHomepageSections } from '../api';
 import Loader from '../components/Loader';
 import ErrorMessage from '../components/ErrorMessage';
+
+const getIcon = (iconName) => {
+  switch (iconName) {
+    case 'CROWN':
+      return (
+        <svg className="w-8 h-8 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z" />
+          <path d="M3 20h18v2H3z" />
+        </svg>
+      );
+    case 'TRUCK':
+      return (
+        <svg className="w-8 h-8 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="1" y="3" width="15" height="13" />
+          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+          <circle cx="5.5" cy="18.5" r="2.5" />
+          <circle cx="18.5" cy="18.5" r="2.5" />
+        </svg>
+      );
+    case 'DIAMOND':
+      return (
+        <svg className="w-8 h-8 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 2L2 12l10 10 10-10L12 2z" />
+        </svg>
+      );
+    default:
+      return (
+        <svg className="w-8 h-8 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="10" />
+        </svg>
+      );
+  }
+};
 
 const Home = () => {
   const [sections, setSections] = useState([]);
@@ -12,15 +44,16 @@ const Home = () => {
   const [currentBannerIdx, setCurrentBannerIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [loadedBgs, setLoadedBgs] = useState({});
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const [secRes, bannerRes] = await Promise.all([
-          fetch('http://127.0.0.1:8001/api/v1/homepage/sections/').then(res => res.json()),
+          fetchHomepageSections().catch(() => ({ results: [] })),
           fetchHomepageBanners().catch(() => [])
         ]);
-        setSections(secRes.results || []);
+        setSections(secRes.results || secRes || []);
         setBanners(bannerRes || []);
       } catch (err) {
         console.error(err);
@@ -31,6 +64,18 @@ const Home = () => {
     };
     loadData();
   }, []);
+
+  useEffect(() => {
+    banners.forEach((b, idx) => {
+      if (b.hero_image_url) {
+        const img = new Image();
+        img.src = b.hero_image_url;
+        img.onload = () => {
+          setLoadedBgs(prev => ({ ...prev, [idx]: true }));
+        };
+      }
+    });
+  }, [banners]);
 
   useEffect(() => {
     if (banners.length <= 1) return;
@@ -46,23 +91,28 @@ const Home = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {banners.map((b, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: idx === currentBannerIdx ? 1 : 0 }}
-            transition={{ duration: 1 }}
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ 
-              backgroundImage: b.hero_image_url ? `url(${b.hero_image_url})` : undefined,
-              backgroundColor: b.hero_image_url ? undefined : '#0B4D2B'
-            }}
-          >
-            <div className="absolute inset-0 bg-black/45"></div>
-          </motion.div>
-        ))}
+        {banners.map((b, idx) => {
+          const isBgLoaded = loadedBgs[idx];
+          return (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: idx === currentBannerIdx ? 1 : 0 }}
+              transition={{ duration: 1 }}
+              className={`absolute inset-0 bg-cover bg-center ${isBgLoaded ? '' : 'animate-pulse'}`}
+              style={{ 
+                backgroundImage: isBgLoaded && b.hero_image_url ? `url(${b.hero_image_url})` : undefined,
+                backgroundColor: isBgLoaded ? undefined : '#161616',
+                backgroundSize: 'cover',
+                transition: 'background-image 0s'
+              }}
+            >
+              <div className="absolute inset-0 bg-black/45"></div>
+            </motion.div>
+          );
+        })}
         {banners.length === 0 && (
-          <div className="absolute inset-0 bg-[#0B4D2B]">
+          <div className="absolute inset-0 bg-[#161616] animate-pulse">
             <div className="absolute inset-0 bg-black/45"></div>
           </div>
         )}
@@ -93,6 +143,69 @@ const Home = () => {
               {banner?.hero_button_text || "Découvrir la Collection"}
             </Link>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Value Props Section */}
+      <section className="py-20 bg-bg-dark border-b border-white/5">
+        <div className="container mx-auto px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="font-playfair text-3xl md:text-5xl font-bold text-accent mb-4">L'art de l'élégance discrète</h2>
+            <p className="text-text-light/60 max-w-2xl mx-auto">Découvrez pourquoi Old Money Algeria redéfinit le style classique.</p>
+          </motion.div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Card 1 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="bg-[#111111] p-8 rounded-lg border border-white/5 hover:border-accent/40 transition-all duration-300 group"
+            >
+              <div className="mb-6 transform group-hover:scale-110 transition-transform duration-300">
+                {getIcon(banner?.prop1_icon || 'CROWN')}
+              </div>
+              <h3 className="font-playfair text-xl font-bold text-text-light mb-4">{banner?.prop1_title || "Qualité Premium"}</h3>
+              <p className="text-text-light/70 text-sm leading-relaxed">{banner?.prop1_text || "Des matières nobles sélectionnées pour durer et affirmer votre statut."}</p>
+            </motion.div>
+
+            {/* Card 2 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="bg-[#111111] p-8 rounded-lg border border-white/5 hover:border-accent/40 transition-all duration-300 group"
+            >
+              <div className="mb-6 transform group-hover:scale-110 transition-transform duration-300">
+                {getIcon(banner?.prop2_icon || 'TRUCK')}
+              </div>
+              <h3 className="font-playfair text-xl font-bold text-text-light mb-4">{banner?.prop2_title || "Livraison 58 Wilayas"}</h3>
+              <p className="text-text-light/70 text-sm leading-relaxed">{banner?.prop2_text || "Payez en espèces à la livraison. Nous expédions partout en Algérie."}</p>
+            </motion.div>
+
+            {/* Card 3 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="bg-[#111111] p-8 rounded-lg border border-white/5 hover:border-accent/40 transition-all duration-300 group"
+            >
+              <div className="mb-6 transform group-hover:scale-110 transition-transform duration-300">
+                {getIcon(banner?.prop3_icon || 'DIAMOND')}
+              </div>
+              <h3 className="font-playfair text-xl font-bold text-text-light mb-4">{banner?.prop3_title || "Élégance Intemporelle"}</h3>
+              <p className="text-text-light/70 text-sm leading-relaxed">{banner?.prop3_text || "Des coupes minimalistes inspirées par l'esthétique Old Money."}</p>
+            </motion.div>
+          </div>
         </div>
       </section>
 

@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, MessageCircle, Package, Truck, CheckCircle, Clock, ShoppingBag } from 'lucide-react';
+import { Search, MessageCircle, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { trackOrder, fetchSettings } from '../api';
 
 const STATUS_STAGES = [
-  { key: 'PENDING', label: 'En attente', icon: Clock },
-  { key: 'CONFIRMED', label: 'Confirmé', icon: CheckCircle },
-  { key: 'PREPARING', label: 'En préparation', icon: Package },
-  { key: 'SHIPPED', label: 'Expédié', icon: Truck },
-  { key: 'DELIVERED', label: 'Livré', icon: ShoppingBag }
+  { key: 'PENDING', lines: ['EN', 'ATTENTE'] },
+  { key: 'CONFIRMED', lines: ['CONFIRMÉE'] },
+  { key: 'PREPARING', lines: ['PRÉP.'] },
+  { key: 'SHIPPED', lines: ['EN', 'LIVRAISON'] },
+  { key: 'DELIVERED', lines: ['LIVRÉE'] }
 ];
 
 const OrderTracking = () => {
@@ -135,37 +135,77 @@ const OrderTracking = () => {
             </div>
 
             {/* Timeline */}
-            <div className="relative mb-12">
-              <div className="absolute top-1/2 left-0 w-full h-1 bg-white/10 -translate-y-1/2 z-0 hidden md:block"></div>
-              <div className="flex flex-col md:flex-row justify-between relative z-10 gap-6 md:gap-0">
+            <style>{`
+              @keyframes pulse-ring {
+                0% {
+                  box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7);
+                }
+                70% {
+                  box-shadow: 0 0 0 10px rgba(212, 175, 55, 0);
+                }
+                100% {
+                  box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+                }
+              }
+              .pulse-active {
+                animation: pulse-ring 2s infinite;
+              }
+            `}</style>
+            <div className="relative mb-16 px-4 md:px-0">
+              {/* Horizontal connecting lines (Desktop) */}
+              <div className="absolute top-5 left-[30px] right-[30px] h-[3px] bg-zinc-700 z-0 hidden md:block">
+                <div 
+                  className="h-full transition-all duration-500" 
+                  style={{ width: `${(getStatusIndex(order.status) / 4) * 100}%`, backgroundColor: '#D4AF37' }}
+                />
+              </div>
+              
+              {/* Vertical connecting lines (Mobile) */}
+              <div className="absolute left-[36px] top-5 bottom-5 w-[3px] bg-zinc-700 z-0 md:hidden">
+                <div 
+                  className="w-full transition-all duration-500" 
+                  style={{ height: `${(getStatusIndex(order.status) / 4) * 100}%`, backgroundColor: '#D4AF37' }}
+                />
+              </div>
+
+              <div className="flex flex-col md:flex-row justify-between relative z-10 gap-8 md:gap-0">
                 {STATUS_STAGES.map((stage, idx) => {
                   const currentIndex = getStatusIndex(order.status);
                   const isCompleted = idx <= currentIndex;
                   const isActive = idx === currentIndex;
-                  const Icon = stage.icon;
+                  const isPast = isCompleted && !isActive;
                   
-                  // For cancelled orders
                   if (order.status === 'CANCELLED') {
                     return null;
                   }
 
                   return (
-                    <div key={stage.key} className="flex md:flex-col items-center gap-4 md:gap-2">
+                    <div key={stage.key} className="flex md:flex-col items-center gap-6 md:gap-4 flex-1">
                       <motion.div 
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: idx * 0.1 }}
-                        className={`w-12 h-12 rounded-full flex items-center justify-center border-2 ${
-                          isActive ? 'bg-accent border-accent text-bg-dark shadow-[0_0_15px_rgba(212,175,55,0.5)]' : 
-                          isCompleted ? 'bg-success border-success text-white' : 
-                          'bg-bg-dark border-white/20 text-white/40'
+                        className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all z-10 ${
+                          isPast ? 'text-zinc-950' :
+                          isActive ? 'text-zinc-950 pulse-active' :
+                          'text-zinc-500'
                         }`}
+                        style={{
+                          backgroundColor: isCompleted ? '#D4AF37' : '#111111',
+                          borderColor: isCompleted ? '#D4AF37' : '#3f3f46',
+                        }}
                       >
-                        <Icon size={20} />
+                        {isPast ? (
+                          <Check size={18} className="stroke-[3]" />
+                        ) : isActive ? (
+                          <div className="w-2.5 h-2.5 bg-zinc-950 rounded-full" />
+                        ) : null}
                       </motion.div>
-                      <div className="md:text-center">
-                        <p className={`font-semibold text-sm ${isActive ? 'text-accent' : isCompleted ? 'text-text-light' : 'text-white/40'}`}>
-                          {stage.label}
+                      <div className="text-left md:text-center">
+                        <p className={`font-semibold text-xs tracking-wider md:mt-2 ${isActive ? 'text-accent' : isPast ? 'text-text-light' : 'text-zinc-500'}`}>
+                          {stage.lines.map((line, lIdx) => (
+                            <span key={lIdx} className="inline md:block md:w-full">{line}{lIdx < stage.lines.length - 1 ? ' ' : ''}</span>
+                          ))}
                         </p>
                       </div>
                     </div>

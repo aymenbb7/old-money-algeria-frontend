@@ -53,9 +53,7 @@ const Footer = () => {
         <div>
           <h4 className="font-playfair font-bold text-lg mb-4 text-accent">Aide & Info</h4>
           <ul className="space-y-2 text-text-light/80 text-sm">
-            <li><a href="#" className="hover:text-accent">Livraison & Retours</a></li>
-            <li><a href="#" className="hover:text-accent">Guide des tailles</a></li>
-            <li><a href="#" className="hover:text-accent">Conditions Générales</a></li>
+            <li><Link to="/suivi" className="hover:text-accent">Livraison & Retours / Suivi</Link></li>
           </ul>
         </div>
 

@@ -49,6 +49,9 @@ const Collections = () => {
     return () => clearTimeout(timeoutId);
   }, [searchTerm, selectedCol]);
 
+  const [bgLoaded, setBgLoaded] = useState(false);
+  const [activeBg, setActiveBg] = useState('');
+
   // Dynamic category hero background and title based on selected tab
   const activeColObj = collections.find(c => c.slug === selectedCol);
   
@@ -57,6 +60,21 @@ const Collections = () => {
   
   const bgImg = activeColObj?.hero_image_url || activeColObj?.image_url || activeColObj?.image || bannerImg;
   const title = activeColObj?.name || banner?.collections_hero_title || "Nos Collections";
+
+  useEffect(() => {
+    if (!bgImg) {
+      setActiveBg('');
+      setBgLoaded(false);
+      return;
+    }
+    setBgLoaded(false);
+    const img = new Image();
+    img.src = bgImg;
+    img.onload = () => {
+      setActiveBg(bgImg);
+      setBgLoaded(true);
+    };
+  }, [bgImg]);
 
   const updateParams = (key, value) => {
     if (value) {
@@ -72,10 +90,12 @@ const Collections = () => {
       {/* Hero Section */}
       <section className="relative h-[40vh] md:h-[50vh] flex items-center justify-center overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-center transition-all duration-700"
+          className={`absolute inset-0 bg-cover bg-center ${bgLoaded ? '' : 'animate-pulse'}`}
           style={{ 
-            backgroundImage: bgImg ? `url(${bgImg})` : undefined,
-            backgroundColor: bgImg ? undefined : '#0B4D2B'
+            backgroundImage: bgLoaded && activeBg ? `url(${activeBg})` : undefined,
+            backgroundColor: bgLoaded ? undefined : '#161616',
+            backgroundSize: 'cover',
+            transition: 'background-image 0s'
           }}
         >
           <div className="absolute inset-0 bg-black/45"></div>

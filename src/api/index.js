@@ -9,6 +9,9 @@ export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
+    'Expires': '0'
   },
 });
 
@@ -19,7 +22,6 @@ export const fetchProducts = async (params = {}) => {
 
 export const fetchProductBySlug = async (slug) => {
   const response = await apiClient.get('/products/', { params: { search: slug } });
-  // Assuming search matches slug perfectly or API returns a list where [0] is the product
   if (response.data.results && response.data.results.length > 0) {
     return response.data.results.find(p => p.slug === slug) || response.data.results[0];
   }
@@ -47,7 +49,7 @@ export const trackOrder = async (orderNumber) => {
 };
 
 export const fetchSettings = async () => {
-  const response = await apiClient.get('/settings/');
+  const response = await apiClient.get(`/settings/?t=${Date.now()}`);
   if (response.data.results && response.data.results.length > 0) {
     return response.data.results[0];
   }
@@ -55,11 +57,16 @@ export const fetchSettings = async () => {
 };
 
 export const fetchHomepageBanners = async () => {
-  const response = await apiClient.get('/homepage/banners/');
+  const response = await apiClient.get(`/homepage/banners/?t=${Date.now()}`);
   if (response.data.results && response.data.results.length > 0) {
     return response.data.results;
   }
   return [];
+};
+
+export const fetchHomepageSections = async () => {
+  const response = await apiClient.get(`/homepage/sections/?t=${Date.now()}`);
+  return response.data;
 };
 
 export const fetchLookbookItems = async () => {
