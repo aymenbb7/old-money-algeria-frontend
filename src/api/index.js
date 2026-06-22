@@ -21,11 +21,8 @@ export const fetchProducts = async (params = {}) => {
 };
 
 export const fetchProductBySlug = async (slug) => {
-  const response = await apiClient.get('/products/', { params: { search: slug } });
-  if (response.data.results && response.data.results.length > 0) {
-    return response.data.results.find(p => p.slug === slug) || response.data.results[0];
-  }
-  throw new Error("Product not found");
+  const response = await apiClient.get(`/products/${slug}/`);
+  return response.data;
 };
 
 export const fetchCollections = async () => {
