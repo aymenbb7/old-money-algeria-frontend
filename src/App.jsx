@@ -31,6 +31,7 @@ function App() {
               <Route path="/confirmation/:orderNumber" element={<OrderConfirmation />} />
               <Route path="/suivi" element={<OrderTracking />} />
               <Route path="/lookbook" element={<Navigate to="/" replace />} />
+              <Route path="/produits" element={<Navigate to="/collections" replace />} />
             </Routes>
           </main>
           <Footer />

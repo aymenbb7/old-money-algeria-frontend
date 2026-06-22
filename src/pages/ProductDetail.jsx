@@ -78,7 +78,7 @@ const ProductDetail = () => {
       <div className="flex items-center gap-2 text-sm text-text-light/60 mb-6 md:mb-10">
         <Link to="/" className="hover:text-accent">Accueil</Link>
         <ChevronRight size={14} />
-        <Link to="/produits" className="hover:text-accent">Catalogue</Link>
+        <Link to="/collections" className="hover:text-accent">Collections</Link>
         <ChevronRight size={14} />
         <span className="text-text-light truncate">{product.name}</span>
       </div>

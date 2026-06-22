@@ -109,15 +109,15 @@ const Home = () => {
         {Array.isArray(banners) && banners.map((b, idx) => {
           const isBgLoaded = loadedBgs[idx];
           return (
-            <motion.div
+              <motion.div
               key={idx}
               initial={{ opacity: 0 }}
               animate={{ opacity: idx === currentBannerIdx ? 1 : 0 }}
               transition={{ duration: 1 }}
-              className={`absolute inset-0 bg-cover bg-center ${isBgLoaded ? '' : 'animate-pulse'}`}
+              className="absolute inset-0 bg-cover bg-center"
               style={{ 
                 backgroundImage: isBgLoaded && b.hero_image_url ? `url(${b.hero_image_url})` : undefined,
-                backgroundColor: isBgLoaded ? undefined : '#161616',
+                backgroundColor: '#0B4D2B',
                 backgroundSize: 'cover',
                 transition: 'background-image 0s'
               }}
@@ -127,32 +127,32 @@ const Home = () => {
           );
         })}
         {(!Array.isArray(banners) || banners.length === 0) && (
-          <div className="absolute inset-0 bg-[#161616] animate-pulse">
+          <div className="absolute inset-0 bg-[#0B4D2B]">
             <div className="absolute inset-0 bg-black/45"></div>
           </div>
         )}
         
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center justify-center w-full">
           <motion.h1 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.3 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
             className="font-cormorant text-5xl md:text-7xl font-bold mb-6 text-text-light"
           >
             {banner?.hero_title || "OLD MONEY IN ALGERIA"}
           </motion.h1>
           <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.6 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
             className="font-cormorant italic text-3xl md:text-5xl text-accent mb-10"
           >
             {banner?.hero_subtitle || "Le Style qui parle avant vous"}
           </motion.p>
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.9 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
             <Link to="/collections" className="inline-block text-accent border border-accent uppercase tracking-[3px] px-10 py-3.5 hover:bg-accent hover:text-black transition-all duration-300">
               {banner?.hero_button_text || "Découvrir la Collection"}
