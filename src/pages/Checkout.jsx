@@ -100,7 +100,6 @@ const Checkout = () => {
       existingOrders.push(orderToSave);
       localStorage.setItem('oma_orders', JSON.stringify(existingOrders));
 
-      clearCart();
       navigate(`/confirmation/${res.order_number}`);
     } catch (err) {
       console.error(err);

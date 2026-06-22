@@ -3,11 +3,13 @@ import { useParams, Link } from 'react-router-dom';
 import { CheckCircle, MessageCircle, Copy, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { trackOrder, fetchSettings } from '../api';
+import { useCart } from '../context/CartContext';
 import Loader from '../components/Loader';
 import ErrorMessage from '../components/ErrorMessage';
 
 const OrderConfirmation = () => {
   const { orderNumber } = useParams();
+  const { clearCart } = useCart();
   const [order, setOrder] = useState(null);
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,6 +17,7 @@ const OrderConfirmation = () => {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    clearCart(); // Clear the cart when landing on confirmation
     const loadData = async () => {
       try {
         const [orderRes, settingsRes] = await Promise.all([
