@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { ShieldCheck, Truck, Clock } from 'lucide-react';
 import { fetchHomepageBanners, fetchHomepageSections } from '../api';
 import Loader from '../components/Loader';
 import ErrorMessage from '../components/ErrorMessage';
@@ -48,15 +49,27 @@ const Home = () => {
 
   useEffect(() => {
     const loadData = async () => {
+      setLoading(true);
+      setError(false);
       try {
-        const [secRes, bannerRes] = await Promise.all([
-          fetchHomepageSections().catch(() => ({ results: [] })),
-          fetchHomepageBanners().catch(() => [])
-        ]);
-        setSections(secRes.results || secRes || []);
-        setBanners(bannerRes || []);
+        let secRes = [];
+        try {
+          secRes = await fetchHomepageSections();
+        } catch (err) {
+          console.error("fetchHomepageSections failed:", err);
+        }
+
+        let bannerRes = [];
+        try {
+          bannerRes = await fetchHomepageBanners();
+        } catch (err) {
+          console.error("fetchHomepageBanners failed:", err);
+        }
+
+        setSections(Array.isArray(secRes?.results) ? secRes.results : (Array.isArray(secRes) ? secRes : []));
+        setBanners(Array.isArray(bannerRes) ? bannerRes : []);
       } catch (err) {
-        console.error(err);
+        console.error("loadData main block failed:", err);
         setError(true);
       } finally {
         setLoading(false);
@@ -66,32 +79,34 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    banners.forEach((b, idx) => {
-      if (b.hero_image_url) {
-        const img = new Image();
-        img.src = b.hero_image_url;
-        img.onload = () => {
-          setLoadedBgs(prev => ({ ...prev, [idx]: true }));
-        };
-      }
-    });
+    if (Array.isArray(banners)) {
+      banners.forEach((b, idx) => {
+        if (b && b.hero_image_url) {
+          const img = new Image();
+          img.src = b.hero_image_url;
+          img.onload = () => {
+            setLoadedBgs(prev => ({ ...prev, [idx]: true }));
+          };
+        }
+      });
+    }
   }, [banners]);
 
   useEffect(() => {
-    if (banners.length <= 1) return;
+    if (!Array.isArray(banners) || banners.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentBannerIdx(prev => (prev + 1) % banners.length);
     }, 5000);
     return () => clearInterval(interval);
   }, [banners]);
 
-  const banner = banners.length > 0 ? banners[currentBannerIdx] : null;
+  const banner = (Array.isArray(banners) && banners.length > 0) ? banners[currentBannerIdx] : null;
 
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {banners.map((b, idx) => {
+        {Array.isArray(banners) && banners.map((b, idx) => {
           const isBgLoaded = loadedBgs[idx];
           return (
             <motion.div
@@ -111,7 +126,7 @@ const Home = () => {
             </motion.div>
           );
         })}
-        {banners.length === 0 && (
+        {(!Array.isArray(banners) || banners.length === 0) && (
           <div className="absolute inset-0 bg-[#161616] animate-pulse">
             <div className="absolute inset-0 bg-black/45"></div>
           </div>
