@@ -102,8 +102,16 @@ const Checkout = () => {
 
       navigate(`/confirmation/${res.order_number}`);
     } catch (err) {
-      console.error(err);
-      alert("Une erreur est survenue lors de la commande. Veuillez vérifier vos informations.");
+      console.error("Checkout Error Payload:", err.config?.data);
+      console.error("Checkout Error Response:", err.response?.data);
+      
+      if (err.response?.status === 404) {
+        alert("Erreur 404: Un ou plusieurs articles dans votre panier n'existent plus dans la base de données (probablement supprimés). Veuillez vider votre panier et réessayer.");
+      } else if (err.response?.data?.error) {
+        alert(`Erreur: ${err.response.data.error}`);
+      } else {
+        alert(`Une erreur est survenue lors de la commande: ${err.message}`);
+      }
       setSubmitting(false);
     }
   };
