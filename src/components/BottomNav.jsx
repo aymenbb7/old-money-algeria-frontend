@@ -14,7 +14,7 @@ const BottomNav = () => {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-md border-t border-white/10 z-50 px-2 py-2 safe-area-pb">
+    <div className="md:hidden fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-md border-t border-border z-50 px-2 py-2 safe-area-pb">
       <div className="flex justify-between items-center">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -24,7 +24,7 @@ const BottomNav = () => {
             <Link 
               key={item.path} 
               to={item.path}
-              className={`flex flex-col items-center justify-center w-full py-1 ${isActive ? 'text-accent' : 'text-text-light/60 hover:text-text-light'}`}
+              className={`flex flex-col items-center justify-center w-full py-1 ${isActive ? 'text-accent' : 'text-text/60 hover:text-text'}`}
             >
               <div className="relative">
                 <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />

@@ -59,7 +59,7 @@ const Timeline = ({ status }) => {
       <div className="absolute top-4 left-[20px] right-[20px] h-[2px] bg-zinc-800 z-0">
         <div 
           className="h-full transition-all duration-700 ease-in-out" 
-          style={{ width: `${(getStatusIndex(status) / 4) * 100}%`, backgroundColor: '#D4AF37' }}
+          style={{ width: `${(getStatusIndex(status) / 4) * 100}%`, backgroundColor: 'var(--color-accent)' }}
         />
       </div>
 
@@ -80,8 +80,8 @@ const Timeline = ({ status }) => {
                   isPast ? 'text-zinc-950' : isActive ? 'text-zinc-950 pulse-active' : 'text-zinc-500'
                 }`}
                 style={{
-                  backgroundColor: isCompleted ? '#D4AF37' : '#111111',
-                  borderColor: isCompleted ? '#D4AF37' : '#3f3f46',
+                  backgroundColor: isCompleted ? 'var(--color-accent)' : '#111111',
+                  borderColor: isCompleted ? 'var(--color-accent)' : '#3f3f46',
                 }}
               >
                 {isPast ? (
@@ -91,7 +91,7 @@ const Timeline = ({ status }) => {
                 ) : null}
               </motion.div>
               <div className="text-center">
-                <p className={`font-semibold text-[10px] sm:text-xs tracking-wider ${isActive ? 'text-accent' : isPast ? 'text-text-light' : 'text-zinc-500'}`}>
+                <p className={`font-semibold text-[10px] sm:text-xs tracking-wider ${isActive ? 'text-accent' : isPast ? 'text-text' : 'text-zinc-500'}`}>
                   <span className="block">{stage.lines[0]}</span>
                   {stage.lines[1] && <span className="block">{stage.lines[1]}</span>}
                 </p>
@@ -149,20 +149,20 @@ const OrderCard = ({ orderData, initiallyExpanded = false }) => {
   const displayWilaya = fullOrderDetails?.wilaya_name || orderData.wilaya;
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-lg p-5 flex flex-col gap-3 hover:border-accent/40 transition-colors">
+    <div className="bg-cards border border-border rounded-lg p-5 flex flex-col gap-3 hover:border-accent/40 transition-colors">
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-3">
           <span className="font-bold text-xl text-accent tracking-widest">{displayOrderNumber}</span>
           <button 
             onClick={handleCopy}
-            className="flex items-center gap-1 text-xs px-2 py-1 border border-accent/50 text-accent rounded hover:bg-accent hover:text-black transition-colors"
+            className="flex items-center gap-1 text-xs px-2 py-1 border border-accent/50 text-accent rounded hover:bg-accent hover:text-bg transition-colors"
           >
             {copied ? <><Check size={12}/> Copié!</> : 'Copier'}
           </button>
         </div>
       </div>
       
-      <div className="text-sm text-text-light/60 flex items-center gap-2">
+      <div className="text-sm text-text/60 flex items-center gap-2">
         <span>{new Date(displayDate).toLocaleDateString('fr-FR')}</span>
         <span>•</span>
         <span>{displayItemsCount} article(s)</span>
@@ -171,7 +171,7 @@ const OrderCard = ({ orderData, initiallyExpanded = false }) => {
       <div className="flex items-center gap-3 mt-1">
         <StatusBadge status={displayStatus} />
         {displayWilaya && (
-          <span className="text-sm text-text-light/70">Wilaya: {displayWilaya}</span>
+          <span className="text-sm text-text/70">Wilaya: {displayWilaya}</span>
         )}
       </div>
 
@@ -193,16 +193,16 @@ const OrderCard = ({ orderData, initiallyExpanded = false }) => {
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="border-t border-white/10 pt-4 mt-2">
+            <div className="border-t border-border pt-4 mt-2">
               {loadingDetails ? (
-                <div className="text-center py-4 text-sm text-text-light/50">Chargement des détails...</div>
+                <div className="text-center py-4 text-sm text-text/50">Chargement des détails...</div>
               ) : fullOrderDetails ? (
                 <>
                   <Timeline status={fullOrderDetails.status} />
                   
                   {fullOrderDetails.items && fullOrderDetails.items.length > 0 && (
                     <div className="mt-6 bg-black/20 rounded p-4">
-                      <h4 className="font-semibold mb-3 text-sm border-b border-white/10 pb-2">Articles commandés</h4>
+                      <h4 className="font-semibold mb-3 text-sm border-b border-border pb-2">Articles commandés</h4>
                       <div className="space-y-3">
                         {fullOrderDetails.items.map((item, idx) => (
                           <div key={idx} className="flex gap-3 items-center">
@@ -211,7 +211,7 @@ const OrderCard = ({ orderData, initiallyExpanded = false }) => {
                             )}
                             <div className="flex-1">
                               <p className="text-sm font-medium">{item.product_name}</p>
-                              <p className="text-xs text-text-light/60">
+                              <p className="text-xs text-text/60">
                                 {item.variant_color && item.variant_size ? `${item.variant_color} - ${item.variant_size}` : ''} 
                                 {item.variant_color || item.variant_size ? ' • ' : ''}
                                 Qté: {item.quantity}
@@ -223,7 +223,7 @@ const OrderCard = ({ orderData, initiallyExpanded = false }) => {
                           </div>
                         ))}
                       </div>
-                      <div className="mt-4 pt-3 border-t border-white/10 flex justify-between font-bold">
+                      <div className="mt-4 pt-3 border-t border-border flex justify-between font-bold">
                         <span>Total:</span>
                         <span className="text-accent">{parseFloat(fullOrderDetails.total_amount).toFixed(2)} DZD</span>
                       </div>
@@ -233,7 +233,7 @@ const OrderCard = ({ orderData, initiallyExpanded = false }) => {
                   <div className="mt-4 text-right">
                     <button 
                       onClick={() => setExpanded(false)}
-                      className="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded transition-colors"
+                      className="text-xs bg-cards brightness-150 hover:bg-cards brightness-200 px-3 py-1.5 rounded transition-colors"
                     >
                       Fermer
                     </button>
@@ -302,7 +302,7 @@ const OrderTracking = () => {
         <input 
           type="text" 
           placeholder="Numéro de commande (ex: OMA-1001)" 
-          className="flex-1 bg-white/5 border border-white/10 rounded-md p-4 focus:outline-none focus:border-accent text-center font-bold tracking-widest uppercase"
+          className="flex-1 bg-cards border border-border rounded-md p-4 focus:outline-none focus:border-accent text-center font-bold tracking-widest uppercase"
           value={orderNumber}
           onChange={(e) => setOrderNumber(e.target.value.toUpperCase())}
           required
@@ -312,7 +312,7 @@ const OrderTracking = () => {
         </button>
       </form>
 
-      {loading && <div className="text-center text-text-light/60 my-8">Recherche en cours...</div>}
+      {loading && <div className="text-center text-text/60 my-8">Recherche en cours...</div>}
       
       {error && (
         <div className="max-w-xl mx-auto bg-error/10 border border-error/20 text-error p-4 rounded-lg text-center my-8">
@@ -333,7 +333,7 @@ const OrderTracking = () => {
         <div className="max-w-3xl mx-auto">
           <h2 className="font-playfair text-2xl font-bold mb-6 text-accent">Mes Commandes Récentes</h2>
           {recentOrders.length === 0 ? (
-            <div className="text-center py-10 bg-white/5 border border-white/10 rounded-lg text-text-light/50">
+            <div className="text-center py-10 bg-cards border border-border rounded-lg text-text/50">
               Aucune commande récente sur cet appareil
             </div>
           ) : (
@@ -352,7 +352,7 @@ const OrderTracking = () => {
             href={`https://wa.me/${settings.whatsapp_number.replace(/\s+/g, '')}`} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 text-sm text-text-light/60 hover:text-[#25D366] transition-colors"
+            className="inline-flex items-center justify-center gap-2 text-sm text-text/60 hover:text-[#25D366] transition-colors"
           >
             <MessageCircle size={18} />
             Un problème avec votre commande ? Contactez le support WhatsApp

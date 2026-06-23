@@ -106,7 +106,7 @@ const Collections = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="font-playfair text-4xl md:text-6xl font-bold text-text-light mb-4"
+            className="font-playfair text-4xl md:text-6xl font-bold text-text mb-4"
           >
             {title}
           </motion.h1>
@@ -114,7 +114,7 @@ const Collections = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-text-light/80 text-lg md:text-xl font-light"
+            className="text-text/80 text-lg md:text-xl font-light"
           >
             L'élégance à l'état pur.
           </motion.p>
@@ -122,14 +122,14 @@ const Collections = () => {
       </section>
 
       <div className="container mx-auto px-4 py-10 md:py-20">
-        <div className="flex flex-col gap-6 mb-10 pb-6 border-b border-white/10">
+        <div className="flex flex-col gap-6 mb-10 pb-6 border-b border-border">
           {/* Search */}
           <div className="relative w-full md:max-w-md mx-auto">
-            <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-light/40" />
+            <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-text/40" />
             <input 
               type="text" 
               placeholder="Rechercher un produit..." 
-              className="w-full bg-white/5 border border-white/10 rounded-md py-3 pl-10 pr-4 focus:outline-none focus:border-accent text-text-light"
+              className="w-full bg-cards border border-border rounded-md py-3 pl-10 pr-4 focus:outline-none focus:border-accent text-text"
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); updateParams('search', e.target.value); }}
             />
@@ -139,7 +139,7 @@ const Collections = () => {
           <div className="flex overflow-x-auto hide-scrollbar gap-6 pb-2 -mx-4 px-4 md:mx-0 md:px-0 justify-start md:justify-center">
             <button
               onClick={() => { setSelectedCol(''); updateParams('collection', ''); }}
-              className={`whitespace-nowrap pb-2 px-1 text-sm md:text-base font-medium transition-all ${!selectedCol ? 'text-accent border-b-2 border-accent' : 'text-text-light/60 hover:text-text-light'}`}
+              className={`whitespace-nowrap pb-2 px-1 text-sm md:text-base font-medium transition-all ${!selectedCol ? 'text-accent border-b-2 border-accent' : 'text-text/60 hover:text-text'}`}
             >
               Tout
             </button>
@@ -147,7 +147,7 @@ const Collections = () => {
               <button
                 key={c.slug}
                 onClick={() => { setSelectedCol(c.slug); updateParams('collection', c.slug); }}
-                className={`whitespace-nowrap pb-2 px-1 text-sm md:text-base font-medium transition-all ${selectedCol === c.slug ? 'text-accent border-b-2 border-accent' : 'text-text-light/60 hover:text-text-light'}`}
+                className={`whitespace-nowrap pb-2 px-1 text-sm md:text-base font-medium transition-all ${selectedCol === c.slug ? 'text-accent border-b-2 border-accent' : 'text-text/60 hover:text-text'}`}
               >
                 {c.name}
               </button>
@@ -162,7 +162,7 @@ const Collections = () => {
             {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <Loader key={i} type="card" />)}
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-20 text-text-light/50 border border-white/10 rounded-lg">
+          <div className="text-center py-20 text-text/50 border border-border rounded-lg">
             <Filter size={48} className="mx-auto mb-4 opacity-30" />
             <p className="text-lg">Aucun produit disponible</p>
           </div>
@@ -184,7 +184,7 @@ const Collections = () => {
                     className="group cursor-pointer"
                   >
                     <Link to={`/produits/${prod.slug}`} className="block">
-                      <div className="relative aspect-[3/4] bg-[#0B4D2B] rounded-lg overflow-hidden mb-4 border border-white/5">
+                      <div className="relative aspect-[3/4] bg-primary rounded-lg overflow-hidden mb-4 border border-border">
                         {imageUrl ? (
                           <img src={imageUrl} alt={prod.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                         ) : (
@@ -200,7 +200,7 @@ const Collections = () => {
                       <div className="flex gap-2 items-center mt-1">
                         <span className="font-bold text-accent">{parseFloat(price).toFixed(2)} DZD</span>
                         {prod.discount_price && (
-                          <span className="text-text-light/40 line-through text-xs md:text-sm">{parseFloat(prod.price).toFixed(2)} DZD</span>
+                          <span className="text-text/40 line-through text-xs md:text-sm">{parseFloat(prod.price).toFixed(2)} DZD</span>
                         )}
                       </div>
                     </Link>

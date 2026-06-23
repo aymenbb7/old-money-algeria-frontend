@@ -120,7 +120,7 @@ const Home = () => {
               className="absolute inset-0 bg-cover bg-center"
               style={{ 
                 backgroundImage: isBgLoaded && b.hero_image_url ? `url(${b.hero_image_url})` : undefined,
-                backgroundColor: '#0B4D2B',
+                backgroundColor: 'var(--color-primary)',
                 backgroundSize: 'cover',
                 transition: 'background-image 0s'
               }}
@@ -130,7 +130,7 @@ const Home = () => {
           );
         })}
         {(!Array.isArray(banners) || banners.length === 0) && (
-          <div className="absolute inset-0 bg-[#0B4D2B]">
+          <div className="absolute inset-0 bg-primary">
             <div className="absolute inset-0 bg-black/45"></div>
           </div>
         )}
@@ -140,7 +140,7 @@ const Home = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="font-cormorant text-5xl md:text-7xl font-bold mb-6 text-text-light"
+            className="font-cormorant text-5xl md:text-7xl font-bold mb-6 text-text"
           >
             {banner?.hero_title || "OLD MONEY IN ALGERIA"}
           </motion.h1>
@@ -157,7 +157,7 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <Link to="/collections" className="inline-block text-accent border border-accent uppercase tracking-[3px] px-10 py-3.5 hover:bg-accent hover:text-black transition-all duration-300">
+            <Link to="/collections" className="inline-block text-accent border border-accent uppercase tracking-[3px] px-10 py-3.5 hover:bg-accent hover:text-bg transition-all duration-300">
               {banner?.hero_button_text || "Découvrir la Collection"}
             </Link>
           </motion.div>
@@ -165,7 +165,7 @@ const Home = () => {
       </section>
 
       {/* Value Props Section */}
-      <section className="py-20 bg-bg-dark border-b border-white/5">
+      <section className="py-20 bg-bg border-b border-border">
         <div className="container mx-auto px-4">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
@@ -175,7 +175,7 @@ const Home = () => {
             className="text-center mb-16"
           >
             <h2 className="font-playfair text-3xl md:text-5xl font-bold text-accent mb-4">L'art de l'élégance discrète</h2>
-            <p className="text-text-light/60 max-w-2xl mx-auto">Découvrez pourquoi Old Money Algeria redéfinit le style classique.</p>
+            <p className="text-text/60 max-w-2xl mx-auto">Découvrez pourquoi Old Money Algeria redéfinit le style classique.</p>
           </motion.div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -185,13 +185,13 @@ const Home = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="bg-[#111111] p-8 rounded-lg border border-white/5 hover:border-accent/40 transition-all duration-300 group"
+              className="bg-cards p-8 rounded-lg border border-border hover:border-accent/40 transition-all duration-300 group"
             >
               <div className="mb-6 transform group-hover:scale-110 transition-transform duration-300">
                 {getIcon(banner?.prop1_icon || 'CROWN')}
               </div>
-              <h3 className="font-playfair text-xl font-bold text-text-light mb-4">{banner?.prop1_title || "Qualité Premium"}</h3>
-              <p className="text-text-light/70 text-sm leading-relaxed">{banner?.prop1_text || "Des matières nobles sélectionnées pour durer et affirmer votre statut."}</p>
+              <h3 className="font-playfair text-xl font-bold text-text mb-4">{banner?.prop1_title || "Qualité Premium"}</h3>
+              <p className="text-text/70 text-sm leading-relaxed">{banner?.prop1_text || "Des matières nobles sélectionnées pour durer et affirmer votre statut."}</p>
             </motion.div>
 
             {/* Card 2 */}
@@ -200,13 +200,13 @@ const Home = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="bg-[#111111] p-8 rounded-lg border border-white/5 hover:border-accent/40 transition-all duration-300 group"
+              className="bg-cards p-8 rounded-lg border border-border hover:border-accent/40 transition-all duration-300 group"
             >
               <div className="mb-6 transform group-hover:scale-110 transition-transform duration-300">
                 {getIcon(banner?.prop2_icon || 'TRUCK')}
               </div>
-              <h3 className="font-playfair text-xl font-bold text-text-light mb-4">{banner?.prop2_title || "Livraison 58 Wilayas"}</h3>
-              <p className="text-text-light/70 text-sm leading-relaxed">{banner?.prop2_text || "Payez en espèces à la livraison. Nous expédions partout en Algérie."}</p>
+              <h3 className="font-playfair text-xl font-bold text-text mb-4">{banner?.prop2_title || "Livraison 58 Wilayas"}</h3>
+              <p className="text-text/70 text-sm leading-relaxed">{banner?.prop2_text || "Payez en espèces à la livraison. Nous expédions partout en Algérie."}</p>
             </motion.div>
 
             {/* Card 3 */}
@@ -215,13 +215,13 @@ const Home = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="bg-[#111111] p-8 rounded-lg border border-white/5 hover:border-accent/40 transition-all duration-300 group"
+              className="bg-cards p-8 rounded-lg border border-border hover:border-accent/40 transition-all duration-300 group"
             >
               <div className="mb-6 transform group-hover:scale-110 transition-transform duration-300">
                 {getIcon(banner?.prop3_icon || 'DIAMOND')}
               </div>
-              <h3 className="font-playfair text-xl font-bold text-text-light mb-4">{banner?.prop3_title || "Élégance Intemporelle"}</h3>
-              <p className="text-text-light/70 text-sm leading-relaxed">{banner?.prop3_text || "Des coupes minimalistes inspirées par l'esthétique Old Money."}</p>
+              <h3 className="font-playfair text-xl font-bold text-text mb-4">{banner?.prop3_title || "Élégance Intemporelle"}</h3>
+              <p className="text-text/70 text-sm leading-relaxed">{banner?.prop3_text || "Des coupes minimalistes inspirées par l'esthétique Old Money."}</p>
             </motion.div>
           </div>
         </div>
@@ -244,7 +244,7 @@ const Home = () => {
             <section key={section.id} className="py-16 container mx-auto px-4">
               <div className="flex justify-between items-end mb-8">
                 <h2 className="font-playfair text-3xl md:text-4xl font-bold text-accent">{section.title}</h2>
-                <Link to="/collections" className="text-text-light hover:text-accent transition-colors underline underline-offset-4">Tout voir</Link>
+                <Link to="/collections" className="text-text hover:text-accent transition-colors underline underline-offset-4">Tout voir</Link>
               </div>
               
               <div className="flex gap-6 overflow-x-auto pb-8 snap-x scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
@@ -261,7 +261,7 @@ const Home = () => {
                       key={prod.id} 
                       className="w-[70%] md:w-[30%] flex-shrink-0 snap-start group relative flex flex-col"
                     >
-                      <Link to={`/produits/${prod.slug}`} className="block relative aspect-[3/4] bg-[#0B4D2B] rounded-lg overflow-hidden mb-4 border border-white/5">
+                      <Link to={`/produits/${prod.slug}`} className="block relative aspect-[3/4] bg-primary rounded-lg overflow-hidden mb-4 border border-border">
                         {imageUrl ? (
                           <img src={imageUrl} alt={prod.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                         ) : (
@@ -280,12 +280,12 @@ const Home = () => {
                           <div className="flex gap-2 items-center mt-1 mb-3">
                             <span className="font-bold text-accent">{parseFloat(price).toFixed(2)} DZD</span>
                             {prod.discount_price && (
-                              <span className="text-text-light/40 line-through text-sm">{parseFloat(prod.price).toFixed(2)} DZD</span>
+                              <span className="text-text/40 line-through text-sm">{parseFloat(prod.price).toFixed(2)} DZD</span>
                             )}
                           </div>
                         </Link>
                         
-                        <Link to={`/produits/${prod.slug}`} className="mt-auto w-full block text-center py-2.5 border border-white/10 hover:border-accent hover:text-accent transition-all rounded-md text-sm uppercase tracking-wider font-semibold">
+                        <Link to={`/produits/${prod.slug}`} className="mt-auto w-full block text-center py-2.5 border border-border hover:border-accent hover:text-accent transition-all rounded-md text-sm uppercase tracking-wider font-semibold">
                           Ajouter au Panier
                         </Link>
                       </div>

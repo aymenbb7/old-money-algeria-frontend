@@ -77,18 +77,18 @@ const ProductDetail = () => {
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
       {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 text-sm text-text-light/60 mb-6 md:mb-10">
+      <div className="flex items-center gap-2 text-sm text-text/60 mb-6 md:mb-10">
         <Link to="/" className="hover:text-accent">Accueil</Link>
         <ChevronRight size={14} />
         <Link to="/collections" className="hover:text-accent">Collections</Link>
         <ChevronRight size={14} />
-        <span className="text-text-light truncate">{product.name}</span>
+        <span className="text-text truncate">{product.name}</span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
         {/* Gallery */}
         <div className="space-y-4">
-          <div className="aspect-[3/4] bg-[#0B4D2B] rounded-lg overflow-hidden border border-white/5">
+          <div className="aspect-[3/4] bg-primary rounded-lg overflow-hidden border border-border">
             {activeImage ? (
               <img src={activeImage} alt={product.name} className="w-full h-full object-cover" />
             ) : (
@@ -121,12 +121,12 @@ const ProductDetail = () => {
           <div className="flex items-center gap-4 mb-6">
             <span className="font-bold text-2xl text-accent">{parseFloat(price).toFixed(2)} DZD</span>
             {product.discount_price && (
-              <span className="text-text-light/40 line-through text-lg">{parseFloat(product.price).toFixed(2)} DZD</span>
+              <span className="text-text/40 line-through text-lg">{parseFloat(product.price).toFixed(2)} DZD</span>
             )}
             {isOutOfStock && <span className="bg-error/20 text-error text-xs font-bold px-2 py-1 rounded">Rupture de stock</span>}
           </div>
 
-          <p className="text-text-light/80 mb-8 leading-relaxed">
+          <p className="text-text/80 mb-8 leading-relaxed">
             {product.description}
           </p>
 
@@ -141,7 +141,7 @@ const ProductDetail = () => {
                   <button 
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`min-w-[3rem] px-4 py-2 rounded border font-semibold transition-all ${selectedSize === size ? 'border-accent bg-accent text-bg-dark' : 'border-white/20 hover:border-white/50'}`}
+                    className={`min-w-[3rem] px-4 py-2 rounded border font-semibold transition-all ${selectedSize === size ? 'border-accent bg-accent text-bg-dark' : 'border-border hover:border-border0'}`}
                   >
                     {size}
                   </button>
@@ -158,7 +158,7 @@ const ProductDetail = () => {
                   <button 
                     key={color}
                     onClick={() => setSelectedColor(color)}
-                    className={`px-4 py-2 rounded border font-semibold transition-all ${selectedColor === color ? 'border-accent text-accent' : 'border-white/20 hover:border-white/50'}`}
+                    className={`px-4 py-2 rounded border font-semibold transition-all ${selectedColor === color ? 'border-accent text-accent' : 'border-border hover:border-border0'}`}
                   >
                     {color}
                   </button>
@@ -179,7 +179,7 @@ const ProductDetail = () => {
             </button>
 
             {/* Mobile Sticky Button */}
-            <div className="md:hidden fixed bottom-16 left-0 w-full p-4 bg-bg-dark/95 backdrop-blur border-t border-white/10 z-40">
+            <div className="md:hidden fixed bottom-16 left-0 w-full p-4 bg-bg/95 backdrop-blur border-t border-border z-40">
               <button 
                 onClick={handleAddToCart}
                 disabled={isOutOfStock}
@@ -195,7 +195,7 @@ const ProductDetail = () => {
 
       {/* Related Products */}
       {related.length > 0 && (
-        <div className="mt-24 pt-12 border-t border-white/10">
+        <div className="mt-24 pt-12 border-t border-border">
           <h2 className="font-playfair text-2xl font-bold mb-8">Vous aimerez aussi</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             {related.map(prod => {
@@ -203,7 +203,7 @@ const ProductDetail = () => {
               const imgUrl = prod.images?.[0]?.image_url || prod.images?.[0]?.image || null;
               return (
                 <Link to={`/produits/${prod.slug}`} key={prod.id} className="group block">
-                  <div className="aspect-[3/4] bg-[#0B4D2B] rounded-lg overflow-hidden mb-3">
+                  <div className="aspect-[3/4] bg-primary rounded-lg overflow-hidden mb-3">
                     {imgUrl ? (
                       <img src={imgUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={prod.name} />
                     ) : (

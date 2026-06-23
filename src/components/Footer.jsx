@@ -29,21 +29,21 @@ const Footer = () => {
   }, []);
 
   return (
-    <footer className="bg-[#050505] border-t border-white/10 pt-16 pb-24 md:pb-8 mt-20">
+    <footer className="bg-[#050505] border-t border-border pt-16 pb-24 md:pb-8 mt-20">
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-10">
         <div className="space-y-4">
           <Link to="/" className="flex items-center gap-3">
             <Logo />
             <span className="font-playfair text-xl font-bold text-accent">OLD MONEY</span>
           </Link>
-          <p className="text-text-light/60 text-sm">
+          <p className="text-text/60 text-sm">
             Le Style qui parle avant vous. L'élégance intemporelle pour l'homme algérien moderne.
           </p>
         </div>
         
         <div>
           <h4 className="font-playfair font-bold text-lg mb-4 text-accent">Boutique</h4>
-          <ul className="space-y-2 text-text-light/80 text-sm">
+          <ul className="space-y-2 text-text/80 text-sm">
             <li><Link to="/collections" className="hover:text-accent">Nouveautés</Link></li>
             <li><Link to="/collections" className="hover:text-accent">Tous les produits</Link></li>
             <li><Link to="/suivi" className="hover:text-accent">Suivre ma commande</Link></li>
@@ -52,39 +52,39 @@ const Footer = () => {
 
         <div>
           <h4 className="font-playfair font-bold text-lg mb-4 text-accent">Aide & Info</h4>
-          <ul className="space-y-2 text-text-light/80 text-sm">
+          <ul className="space-y-2 text-text/80 text-sm">
             <li><Link to="/suivi" className="hover:text-accent">Livraison & Retours / Suivi</Link></li>
           </ul>
         </div>
 
         <div>
           <h4 className="font-playfair font-bold text-lg mb-4 text-accent">Suivez-nous</h4>
-          <p className="text-text-light/80 text-sm mb-4">Rejoignez la communauté Old Money.</p>
+          <p className="text-text/80 text-sm mb-4">Rejoignez la communauté Old Money.</p>
           <div className="flex gap-4">
             {settings?.instagram_url && (
-              <a href={settings.instagram_url} target="_blank" rel="noopener noreferrer" className="text-text-light/60 hover:text-accent transition-colors">
+              <a href={settings.instagram_url} target="_blank" rel="noopener noreferrer" className="text-text/60 hover:text-accent transition-colors">
                 <InstagramIcon />
               </a>
             )}
             {settings?.tiktok_url && (
-              <a href={settings.tiktok_url} target="_blank" rel="noopener noreferrer" className="text-text-light/60 hover:text-accent transition-colors">
+              <a href={settings.tiktok_url} target="_blank" rel="noopener noreferrer" className="text-text/60 hover:text-accent transition-colors">
                 <TikTokIcon />
               </a>
             )}
             {settings?.facebook_url && (
-              <a href={settings.facebook_url} target="_blank" rel="noopener noreferrer" className="text-text-light/60 hover:text-accent transition-colors">
+              <a href={settings.facebook_url} target="_blank" rel="noopener noreferrer" className="text-text/60 hover:text-accent transition-colors">
                 <FacebookIcon />
               </a>
             )}
             {settings?.whatsapp_number && (
-              <a href={`https://wa.me/${settings.whatsapp_number.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-text-light/60 hover:text-accent transition-colors">
+              <a href={`https://wa.me/${settings.whatsapp_number.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-text/60 hover:text-accent transition-colors">
                 <WhatsAppIcon />
               </a>
             )}
           </div>
         </div>
       </div>
-      <div className="container mx-auto px-4 mt-12 pt-8 border-t border-white/10 text-center text-text-light/40 text-xs">
+      <div className="container mx-auto px-4 mt-12 pt-8 border-t border-border text-center text-text/40 text-xs">
         &copy; 2025 Old Money In Algeria. Tous droits réservés.
       </div>
     </footer>

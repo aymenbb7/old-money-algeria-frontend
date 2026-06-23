@@ -56,21 +56,21 @@ const OrderConfirmation = () => {
         <CheckCircle size={80} className="text-accent mx-auto mb-6" />
       </motion.div>
       
-      <h1 className="font-playfair text-4xl md:text-5xl font-bold mb-6 text-text-light">
+      <h1 className="font-playfair text-4xl md:text-5xl font-bold mb-6 text-text">
         Commande Confirmée !
       </h1>
       
-      <p className="text-text-light/80 mb-6 text-lg">
+      <p className="text-text/80 mb-6 text-lg">
         Merci pour votre confiance. Votre commande a bien été enregistrée.
       </p>
 
-      <div className="bg-white/5 border border-white/10 rounded-lg p-8 mb-8 flex flex-col items-center justify-center">
-        <span className="text-sm text-text-light/60 uppercase tracking-widest mb-2">Votre Numéro de Suivi</span>
-        <div className="flex items-center gap-4 bg-bg-dark border border-white/10 rounded-full py-3 px-6">
+      <div className="bg-cards border border-border rounded-lg p-8 mb-8 flex flex-col items-center justify-center">
+        <span className="text-sm text-text/60 uppercase tracking-widest mb-2">Votre Numéro de Suivi</span>
+        <div className="flex items-center gap-4 bg-bg border border-border rounded-full py-3 px-6">
           <span className="font-bold text-2xl text-accent tracking-widest">{order.order_number}</span>
           <button 
             onClick={handleCopy}
-            className="flex items-center gap-2 text-sm font-semibold border border-accent text-accent hover:bg-accent hover:text-black transition-colors rounded-full px-4 py-2"
+            className="flex items-center gap-2 text-sm font-semibold border border-accent text-accent hover:bg-accent hover:text-bg transition-colors rounded-full px-4 py-2"
           >
             {copied ? (
               <>
@@ -85,9 +85,9 @@ const OrderConfirmation = () => {
         </div>
       </div>
 
-      <div className="bg-white/5 border border-white/10 rounded-lg p-6 text-left mb-8 max-w-md mx-auto">
-        <h3 className="font-bold border-b border-white/10 pb-3 mb-4 text-lg">Résumé de la commande</h3>
-        <div className="space-y-3 text-text-light/80">
+      <div className="bg-cards border border-border rounded-lg p-6 text-left mb-8 max-w-md mx-auto">
+        <h3 className="font-bold border-b border-border pb-3 mb-4 text-lg">Résumé de la commande</h3>
+        <div className="space-y-3 text-text/80">
           <p className="flex justify-between">
             <strong>Nom :</strong> <span>{order.guest_name}</span>
           </p>
@@ -100,8 +100,8 @@ const OrderConfirmation = () => {
           <p className="flex justify-between">
             <strong>Livraison :</strong> <span>{order.delivery_type === 'HOME' ? 'Domicile' : 'Point Relais'}</span>
           </p>
-          <p className="flex justify-between border-t border-white/10 pt-3 mt-3">
-            <strong className="text-lg text-text-light">Total :</strong> <span className="font-bold text-lg text-accent">{parseFloat(order.total_amount).toFixed(2)} DZD</span>
+          <p className="flex justify-between border-t border-border pt-3 mt-3">
+            <strong className="text-lg text-text">Total :</strong> <span className="font-bold text-lg text-accent">{parseFloat(order.total_amount).toFixed(2)} DZD</span>
           </p>
         </div>
       </div>
