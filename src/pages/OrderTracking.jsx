@@ -109,6 +109,7 @@ const OrderCard = ({ orderData, initiallyExpanded = false }) => {
   const [copied, setCopied] = useState(false);
   const [fullOrderDetails, setFullOrderDetails] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
   
   // orderData from local storage usually just has orderNumber, date, itemsCount, wilaya, status
   // but if it's fetched directly via search, it has the full object
@@ -133,8 +134,10 @@ const OrderCard = ({ orderData, initiallyExpanded = false }) => {
       try {
         const details = await trackOrder(orderData.orderNumber);
         setFullOrderDetails(details);
+        setFetchError(null);
       } catch (err) {
         console.error("Could not fetch details", err);
+        setFetchError(err.response?.status === 404 ? "Commande introuvable dans la base de données (404)" : err.message);
       } finally {
         setLoadingDetails(false);
       }
@@ -240,7 +243,9 @@ const OrderCard = ({ orderData, initiallyExpanded = false }) => {
                   </div>
                 </>
               ) : (
-                <div className="text-center text-error text-sm py-2">Impossible de charger les détails</div>
+                <div className="text-center text-error text-sm py-2">
+                  {fetchError || "Impossible de charger les détails"}
+                </div>
               )}
             </div>
           </motion.div>
