@@ -36,7 +36,7 @@ export const fetchWilayas = async () => {
 };
 
 export const submitOrder = async (orderData) => {
-  const response = await apiClient.post('/orders/checkout/', orderData);
+  const response = await apiClient.post('/orders/checkout/', orderData, { timeout: 60000 });
   return response.data;
 };
 

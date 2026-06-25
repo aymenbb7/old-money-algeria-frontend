@@ -12,6 +12,7 @@ const Checkout = () => {
   const [activeCoupons, setActiveCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [networkError, setNetworkError] = useState(false);
   
   const [formData, setFormData] = useState({
     guest_name: '',
@@ -100,13 +101,16 @@ const Checkout = () => {
       existingOrders.push(orderToSave);
       localStorage.setItem('oma_orders', JSON.stringify(existingOrders));
 
+      setNetworkError(false);
       navigate(`/confirmation/${res.order_number}`);
     } catch (err) {
       console.error("Checkout Error Payload:", err.config?.data);
       console.error("Checkout Error Response:", err.response?.data);
       
-      if (err.response?.status === 404) {
-        alert("Erreur 404: Un ou plusieurs articles dans votre panier n'existent plus dans la base de données (probablement supprimés). Veuillez vider votre panier et réessayer.");
+      if (err.message === "Network Error" || err.code === "ECONNABORTED") {
+        setNetworkError(true);
+      } else if (err.response?.status === 404) {
+        alert("Cette commande n'existe plus dans notre système");
       } else if (err.response?.data?.error) {
         alert(`Erreur: ${err.response.data.error}`);
       } else {
@@ -218,14 +222,29 @@ const Checkout = () => {
               Paiement à la livraison (Cash Only)
             </div>
 
-            <button 
-              form="checkoutForm" 
-              type="submit" 
-              disabled={submitting}
-              className="btn-primary w-full"
-            >
-              {submitting ? 'Traitement...' : 'Confirmer la Commande'}
-            </button>
+            {networkError && (
+              <div className="bg-error/10 border border-error text-error p-4 rounded mb-6 text-sm text-center">
+                <p className="mb-3 font-semibold">Le serveur est en cours de démarrage, veuillez réessayer dans 30 secondes</p>
+                <button 
+                  type="button"
+                  onClick={() => setNetworkError(false)}
+                  className="bg-error text-white px-4 py-2 rounded text-xs font-bold uppercase tracking-wider hover:bg-error/80 transition-colors"
+                >
+                  Réessayer
+                </button>
+              </div>
+            )}
+
+            {!networkError && (
+              <button 
+                form="checkoutForm" 
+                type="submit" 
+                disabled={submitting}
+                className="btn-primary w-full"
+              >
+                {submitting ? 'Traitement...' : 'Confirmer la Commande'}
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Search, MessageCircle, Check, Copy, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { trackOrder, fetchSettings } from '../api';
+import { trackOrder, fetchSettings, fetchWilayas } from '../api';
 
 const STATUS_STAGES = [
   { key: 'PENDING', lines: ['EN', 'ATTENTE'] },
@@ -104,7 +104,7 @@ const Timeline = ({ status }) => {
   );
 };
 
-const OrderCard = ({ orderData, initiallyExpanded = false }) => {
+const OrderCard = ({ orderData, initiallyExpanded = false, wilayasMap, onDelete }) => {
   const [expanded, setExpanded] = useState(initiallyExpanded);
   const [copied, setCopied] = useState(false);
   const [fullOrderDetails, setFullOrderDetails] = useState(null);
@@ -135,9 +135,19 @@ const OrderCard = ({ orderData, initiallyExpanded = false }) => {
         const details = await trackOrder(orderData.orderNumber);
         setFullOrderDetails(details);
         setFetchError(null);
+        
+        // Update local storage with fresh status
+        if (orderData.orderNumber) {
+          const orders = JSON.parse(localStorage.getItem('oma_orders') || '[]');
+          const idx = orders.findIndex(o => o.orderNumber === orderData.orderNumber);
+          if (idx !== -1) {
+            orders[idx].status = details.status;
+            localStorage.setItem('oma_orders', JSON.stringify(orders));
+          }
+        }
       } catch (err) {
         console.error("Could not fetch details", err);
-        setFetchError(err.response?.status === 404 ? "Commande introuvable dans la base de données (404)" : err.message);
+        setFetchError(err.response?.status === 404 ? "Cette commande n'existe plus dans notre système" : err.message);
       } finally {
         setLoadingDetails(false);
       }
@@ -149,7 +159,12 @@ const OrderCard = ({ orderData, initiallyExpanded = false }) => {
   const displayDate = orderData.created_at || orderData.date;
   const displayItemsCount = orderData.items?.length || orderData.itemsCount;
   const displayStatus = fullOrderDetails?.status || orderData.status;
-  const displayWilaya = fullOrderDetails?.wilaya_name || orderData.wilaya;
+  
+  let displayWilaya = fullOrderDetails?.wilaya_name || orderData.wilaya;
+  // Convert wilaya code to name if it's just a number
+  if (displayWilaya && /^\d+$/.test(displayWilaya) && wilayasMap && wilayasMap[displayWilaya]) {
+    displayWilaya = `${wilayasMap[displayWilaya]}`;
+  }
 
   return (
     <div className="bg-cards border border-border rounded-lg p-5 flex flex-col gap-3 hover:border-accent/40 transition-colors">
@@ -243,8 +258,18 @@ const OrderCard = ({ orderData, initiallyExpanded = false }) => {
                   </div>
                 </>
               ) : (
-                <div className="text-center text-error text-sm py-2">
-                  {fetchError || "Impossible de charger les détails"}
+                <div className="text-center py-4">
+                  <div className="text-error text-sm font-semibold mb-3">
+                    {fetchError || "Impossible de charger les détails"}
+                  </div>
+                  {fetchError === "Cette commande n'existe plus dans notre système" && onDelete && (
+                    <button 
+                      onClick={() => onDelete(orderData.orderNumber)}
+                      className="text-xs border border-error text-error hover:bg-error hover:text-white px-4 py-2 rounded transition-colors"
+                    >
+                      Supprimer de l'historique
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -265,6 +290,7 @@ const OrderTracking = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [recentOrders, setRecentOrders] = useState([]);
+  const [wilayasMap, setWilayasMap] = useState({});
 
   useEffect(() => {
     const orders = JSON.parse(localStorage.getItem('oma_orders') || '[]');
@@ -272,6 +298,13 @@ const OrderTracking = () => {
     const sorted = orders.sort((a, b) => new Date(b.date) - new Date(a.date));
     setRecentOrders(sorted);
   }, []);
+
+  const handleDeleteFromHistory = (orderNumberToRemove) => {
+    const orders = JSON.parse(localStorage.getItem('oma_orders') || '[]');
+    const filtered = orders.filter(o => o.orderNumber !== orderNumberToRemove);
+    localStorage.setItem('oma_orders', JSON.stringify(filtered));
+    setRecentOrders(filtered);
+  };
 
   const handleSearch = useCallback(async (e) => {
     if (e) e.preventDefault();
@@ -295,6 +328,12 @@ const OrderTracking = () => {
 
   useEffect(() => {
     fetchSettings().then(setSettings).catch(console.error);
+    fetchWilayas().then(data => {
+      const wList = data.results || data || [];
+      const wMap = {};
+      wList.forEach(w => { wMap[w.code] = w.name; });
+      setWilayasMap(wMap);
+    }).catch(console.error);
     if (orderNumber) handleSearch();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -329,7 +368,7 @@ const OrderTracking = () => {
       {searchedOrder && (
         <div className="max-w-3xl mx-auto mb-16">
           <h2 className="font-playfair text-2xl font-bold mb-6 text-accent">Résultat de la recherche</h2>
-          <OrderCard orderData={searchedOrder} initiallyExpanded={true} />
+          <OrderCard orderData={searchedOrder} initiallyExpanded={true} wilayasMap={wilayasMap} />
         </div>
       )}
 
@@ -344,7 +383,12 @@ const OrderTracking = () => {
           ) : (
             <div className="flex flex-col gap-4">
               {recentOrders.map((ro, idx) => (
-                <OrderCard key={`${ro.orderNumber}-${idx}`} orderData={ro} />
+                <OrderCard 
+                  key={`${ro.orderNumber}-${idx}`} 
+                  orderData={ro} 
+                  wilayasMap={wilayasMap} 
+                  onDelete={handleDeleteFromHistory} 
+                />
               ))}
             </div>
           )}
