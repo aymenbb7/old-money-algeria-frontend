@@ -10,9 +10,19 @@ const CartDrawer = () => {
 
   // Prevent background scrolling when open
   useEffect(() => {
-    if (isCartOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = 'unset';
+    if (isCartOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
   }, [isCartOpen]);
+
+  // Make sure to reset overflow on unmount
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
 
   return (
     <AnimatePresence>

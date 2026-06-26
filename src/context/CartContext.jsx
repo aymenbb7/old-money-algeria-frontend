@@ -26,7 +26,6 @@ export const CartProvider = ({ children }) => {
       }
       return [...prev, { product, size, color, quantity }];
     });
-    setIsCartOpen(true);
   };
 
   const updateQuantity = (product, size, color, quantity) => {

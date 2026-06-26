@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, ChevronRight } from 'lucide-react';
 import { fetchProductBySlug, fetchProducts } from '../api';
 import { useCart } from '../context/CartContext';
@@ -8,7 +8,8 @@ import ErrorMessage from '../components/ErrorMessage';
 
 const ProductDetail = () => {
   const { slug } = useParams();
-  const { addToCart } = useCart();
+  const navigate = useNavigate();
+  const { addToCart, setIsCartOpen } = useCart();
   
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
@@ -72,6 +73,13 @@ const ProductDetail = () => {
       return;
     }
     addToCart(product, selectedSize, selectedColor, 1);
+    
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) {
+      navigate('/panier');
+    } else {
+      setIsCartOpen(true);
+    }
   };
 
   return (
