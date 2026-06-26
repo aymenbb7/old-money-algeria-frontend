@@ -10,6 +10,7 @@ import CartPage from './pages/CartPage';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 import OrderTracking from './pages/OrderTracking';
+import ScrollToTop from './components/ScrollToTop';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -39,6 +40,7 @@ function App() {
   return (
     <CartProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <div className="flex flex-col min-h-screen bg-bg text-text pb-16 md:pb-0">
           <Navbar />
           <CartDrawer />
