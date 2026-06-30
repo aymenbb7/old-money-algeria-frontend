@@ -22,7 +22,8 @@ const CartPage = () => {
         <div className="space-y-4">
           {cartItems.map((item, idx) => {
             const price = item.product.discount_price || item.product.price;
-            const img = item.product.images && item.product.images.length > 0 ? item.product.images[0].image : null;
+            const mainImgObj = item.product.images?.find(i => i.is_main) || item.product.images?.[0];
+            const img = mainImgObj ? (mainImgObj.image_url || mainImgObj.image) : null;
             
             return (
               <div key={`${item.product.id}-${idx}`} className="flex gap-4 bg-cards p-4 rounded-lg border border-border">

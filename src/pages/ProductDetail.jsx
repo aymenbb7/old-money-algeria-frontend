@@ -29,7 +29,8 @@ const ProductDetail = () => {
         const prod = await fetchProductBySlug(slug);
         setProduct(prod);
         if (prod.images?.length > 0) {
-          setActiveImage(prod.images[0].image_url || prod.images[0].image);
+          const mainImgObj = prod.images.find(i => i.is_main) || prod.images[0];
+          setActiveImage(mainImgObj.image_url || mainImgObj.image);
         }
         
         // Auto select first variant if exists
@@ -205,10 +206,11 @@ const ProductDetail = () => {
       {related.length > 0 && (
         <div className="mt-24 pt-12 border-t border-border">
           <h2 className="font-playfair text-2xl font-bold mb-8">Vous aimerez aussi</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-            {related.map(prod => {
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {related.map((prod) => {
+              const mainImgObj = prod.images?.find(i => i.is_main) || prod.images?.[0];
+              const imgUrl = mainImgObj ? (mainImgObj.image_url || mainImgObj.image) : null;
               const pPrice = prod.discount_price || prod.price;
-              const imgUrl = prod.images?.[0]?.image_url || prod.images?.[0]?.image || null;
               return (
                 <Link to={`/produits/${prod.slug}`} key={prod.id} className="group block">
                   <div className="aspect-[3/4] bg-primary rounded-lg overflow-hidden mb-3">

@@ -250,7 +250,8 @@ const Home = () => {
               <div className="flex gap-6 overflow-x-auto pb-8 snap-x scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
                 {section.products.map((prod, idx) => {
                   const price = prod.discount_price || prod.price;
-                  const imageUrl = prod.images?.[0]?.image_url || prod.images?.[0]?.image || null;
+                  const mainImgObj = prod.images?.find(i => i.is_main) || prod.images?.[0];
+                  const imageUrl = mainImgObj ? (mainImgObj.image_url || mainImgObj.image) : null;
                   
                   return (
                     <motion.div 
